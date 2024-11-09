@@ -7,20 +7,12 @@ class BooksService:
         self.__app = app
         self.__registerRoutes()
 
-    def run(self) -> None:
-        """Start the Flask application to serve incoming requests."""
-
-        self.__app.run(
-            host="0.0.0.0",
-            port=8081,
-        )
-
     def __registerRoutes(self) -> None:
         @self.__app.route("/books", methods=["GET"])
         def insertBook():
             print("\n\n\n\nzxczxczxcxzczxcxzcz\n\n\n\n")
-            return jsonify(["123"])
-            pass
+            
+            return jsonify({"message": "Hello World!"}), 200
         
         @self.__app.errorhandler(404)
         def notFound(error):

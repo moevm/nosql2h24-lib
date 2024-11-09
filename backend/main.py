@@ -7,8 +7,8 @@ booksModule = importlib.import_module("books.books")
 class Core:
     """Core class"""
     def __init__(self) -> None:
-        app = Flask(__name__)
-        self.__books = booksModule.BooksService(app)
+        self.__app = Flask(__name__)
+        self.__books = booksModule.BooksService(self.__app)
 
     def start(self) -> None:
         """Run the REST-API service"""
@@ -17,6 +17,14 @@ class Core:
         books_thread.start()
 
         books_thread.join()
+
+    def run(self) -> None:
+        """Start the Flask application to serve incoming requests."""
+
+        self.__app.run(
+            host="0.0.0.0",
+            port=8081,
+        )
 
 
 if __name__ == "__main__":
