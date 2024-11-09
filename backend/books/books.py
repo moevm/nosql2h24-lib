@@ -9,9 +9,7 @@ class BooksService:
 
     def __registerRoutes(self) -> None:
         @self.__app.route("/books", methods=["GET"])
-        def insertBook():
-            print("\n\n\n\nzxczxczxcxzczxcxzcz\n\n\n\n")
-            
+        def getBooks():
             return jsonify({"message": "Hello World!"}), 200
         
         @self.__app.errorhandler(404)
