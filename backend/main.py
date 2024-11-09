@@ -19,10 +19,11 @@ class Core:
 
     def run(self) -> None:
         """Start the Flask application to serve incoming requests."""
-
+        port = 8081
+        self.__app.config["PORT"] = port
         self.__app.run(
             host="0.0.0.0",
-            port=8081,
+            port=port,
         )
 
 
