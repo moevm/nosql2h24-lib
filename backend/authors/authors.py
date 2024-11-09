@@ -8,8 +8,12 @@ class AuthorsService:
         self.__registerRoutes()
 
     def __registerRoutes(self) -> None:
+        @self.__app.route("/authors", methods=["POST"])
+        def insert_author():            
+            return jsonify({"message": "pizdec!"}), 200
+        
         @self.__app.route("/authors", methods=["GET"])
-        def insertAuthor():            
+        def get_authors():            
             return jsonify({"message": "pizdec!"}), 200
 
 

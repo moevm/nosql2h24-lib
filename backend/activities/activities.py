@@ -30,10 +30,12 @@ class ActivitiesService:
 
     def __registerRoutes(self) -> None:
         @self.__app.route("/activities", methods=["GET"])
-        def activities():
-            print("\n\n\n\nzxczxczxcxzczxcxzcz\n\n\n\n")
-            
+        def get_activities():            
             return jsonify({"message": "Hello World!"}), 200
+        
+        @self.__app.route("/activities", methods=["POST"])
+        def get_activities():            
+            return jsonify({"message": "post activities!"}), 200
 
 
 if __name__ == "__main__":
