@@ -1,11 +1,10 @@
-from flask import Flask, jsonify
+from flask import jsonify
 from pymongo import MongoClient
 
 
 class BooksService:
-    def __init__(self) -> None:
-        self.__app = Flask("books")
-
+    def __init__(self, app: any) -> None:
+        self.__app = app
         self.__registerRoutes()
 
     def run(self) -> None:
@@ -13,12 +12,13 @@ class BooksService:
 
         self.__app.run(
             host="0.0.0.0",
-            port=745,
+            port=8081,
         )
 
     def __registerRoutes(self) -> None:
-        @self.__app.route("/books", methods=["POST"])
+        @self.__app.route("/books", methods=["GET"])
         def insertBook():
+            print("\n\n\n\nzxczxczxcxzczxcxzcz\n\n\n\n")
             pass
         
         @self.__app.errorhandler(404)

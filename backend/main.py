@@ -1,24 +1,24 @@
 from flask import Flask, request, jsonify
-from pymongo import MongoClient
+import threading
+import importlib
 
-app = Flask(__name__)
+booksModule = importlib.import_module("books.books")
 
-client = MongoClient('mongodb://mongo:27017@0.0.0.0:27017')
-#print(client.list_database_names())
-# db = client['default_db']
-# collection = db['books']
+class Core:
+    """Core class"""
+    def __init__(self) -> None:
+        app = Flask(__name__)
+        self.__books = booksModule.BooksService(app)
 
-# @app.route('/add', methods=['POST'])
-# def add_item():
-#     #item = request.json
-#     #collection.insert_one(item)
-#     return jsonify({'message': 'Item added successfully!'}), 201
+    def start(self) -> None:
+        """Run the REST-API service"""
 
-@app.route('/items', methods=['GET'])
-def get_items():
-    #items = list(collection.find({}, {'_id': 0}))
-    items = client.list_database_names()
-    return jsonify(items)
+        books_thread = threading.Thread(target=self.__books.run)
+        books_thread.start()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+        books_thread.join()
+
+
+if __name__ == "__main__":
+    core = Core()
+    core.start()
