@@ -4,6 +4,7 @@ import { Auth } from "../components/auth";
 import { Book } from "../components/book";
 import { Author } from "../components/author";
 import { Users } from "../components/users";
+import { User } from "../components/user";
 
 export const router = createBrowserRouter([
 	{
@@ -32,6 +33,6 @@ export const router = createBrowserRouter([
 	},
 	{
 		path: "/user/:id",
-		element: <Users />,
+		element: <User />,
 	},
 ]);
