@@ -19,6 +19,7 @@ class BooksService:
         @self.__app.route("/books", methods=["GET"])
         def insertBook():
             print("\n\n\n\nzxczxczxcxzczxcxzcz\n\n\n\n")
+            return jsonify(["123"])
             pass
         
         @self.__app.errorhandler(404)
