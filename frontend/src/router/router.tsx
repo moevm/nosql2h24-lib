@@ -2,6 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import { Home } from "../components/home";
 import { Auth } from "../components/auth";
 import { Book } from "../components/book";
+import { Author } from "../components/author";
+import { Users } from "../components/users";
 
 export const router = createBrowserRouter([
 	{
@@ -19,5 +21,17 @@ export const router = createBrowserRouter([
 	{
 		path: "/book/:id",
 		element: <Book />,
+	},
+	{
+		path: "/author/:id",
+		element: <Author />,
+	},
+	{
+		path: "/users",
+		element: <Users />,
+	},
+	{
+		path: "/user/:id",
+		element: <Users />,
 	},
 ]);
