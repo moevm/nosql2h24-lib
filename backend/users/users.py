@@ -42,12 +42,14 @@ class UsersService:
         response = {}
 
         collection = self.__mongo[self.db_name][self.collection_name]
-        response = collection.find_one({"login": login})
+        existing_user = collection.find_one({"login": login})
+        if existing_user:
+            return jsonify({"error": "User already exists"}), 409
 
-
-
-        
-        return response, 200
+        new_user = {"login": login}
+        collection.insert_one(new_user)
+    
+        return jsonify({"message": f"User {login} added successfully!"}), 201
 
 if __name__ == "__main__":
     pass
