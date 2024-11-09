@@ -3,12 +3,16 @@ import threading
 import importlib
 
 booksModule = importlib.import_module("books.books")
+usersModule = importlib.import_module("users.users")
+activitiesModule = importlib.import_module("activities.activities")
 
 class Core:
     """Core class"""
     def __init__(self) -> None:
         self.__app = Flask(__name__)
-        self.__books = booksModule.BooksService(self.__app)    
+        self.__books = booksModule.BooksService(self.__app)
+        self.__users = usersModule.UsersService(self.__app)
+        self.__users = activitiesModule.ActivitiesService(self.__app)
 
     def run(self) -> None:
         """Start the Flask application to serve incoming requests."""
