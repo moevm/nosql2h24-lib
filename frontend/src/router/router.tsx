@@ -1,8 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
+import { Home } from "../components/home";
+import { Auth } from "../components/auth";
 
 export const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <div>Hello world!</div>,
+		element: <Home />,
+	},
+	{
+		path: "/auth",
+		element: <Auth />,
 	},
 ]);
