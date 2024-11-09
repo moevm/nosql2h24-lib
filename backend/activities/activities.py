@@ -8,9 +8,14 @@
 
 from flask import jsonify, request
 from pymongo import MongoClient
-
+from datetime import datetime
+from bson import ObjectId
 
 class ActivitiesService:
+    collection_name = "activities"
+    db_name = "library"
+    entity_types = ["books", "authors", "users"]
+
     def __init__(self, app: any, mongo: any) -> None:
         self.__app = app
         self.__mongo = mongo
@@ -18,17 +23,63 @@ class ActivitiesService:
 
     def __registerRoutes(self) -> None:
         @self.__app.route("/activities", methods=["GET"])
-        def activities():
-            print(self.__mongo.list_database_names())
-            
-            return jsonify({"message": "Hello World!"}), 200
+        def get_activities():     
+            return self.activities_list()
         
         @self.__app.route("/activities", methods=["POST"])
         def insert_activity():
-            body = request.get_json()  
-            print(body)          
-            return body, 200
+            return self.add_activity(request.get_json(), request.cookies.get("user_id"))
 
+    def activities_list(self):
+        collection = self.__mongo[self.db_name][self.collection_name]
+        cursor = collection.find()
+        activities = list(cursor)
+
+        for activity in activities:
+            activity["_id"] = str(activity["_id"])
+
+        return jsonify(activities), 200
+    
+    def add_activity(self, request_data, user_id):
+        fields = ["description", "entity_type", "entity_id"]
+        missed = ActivitiesService.__check_fields(request_data, fields)
+        if missed != "":
+            error = f"Missing {missed} in request data" if missed != "Invalid request" else missed
+            return jsonify({"error": error}), 400
+        
+        descriprtion, entity_type, entity_id = request_data["description"], request_data["entity_type"], request_data["entity_id"]
+        collection = self.__mongo[self.db_name][self.collection_name]
+
+        if entity_type not in self.entity_types:
+            return jsonify({"error": f"Invalid entyty type {entity_type}"}), 400
+
+        entity_collection = self.__mongo[self.db_name][entity_type]
+        existing_id = entity_collection.find_one({"_id": ObjectId(entity_id)})
+        if not existing_id:
+            return jsonify({"error": f"Invalid reference in entity_id {entity_id}"}), 400
+
+        if not user_id:
+            return jsonify({"error": f"Unauthorized {user_id}"}), 400
+
+        new_activity = { 
+            "user_id": user_id, 
+            "description": descriprtion,
+            "entyty_type": entity_type,
+            "entity_id": entity_id,
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")    
+        }
+        result = collection.insert_one(new_activity)
+    
+        return jsonify({"message": f"Activity added successfully!", "activity": str(result.inserted_id)}), 201
+
+    @staticmethod
+    def __check_fields(data, fields):
+        if not data:
+            return "Invalid request"
+        for field in fields:
+            if field not in data:
+                return field
+        return ""
 
 if __name__ == "__main__":
     pass
