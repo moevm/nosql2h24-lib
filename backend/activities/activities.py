@@ -6,7 +6,7 @@
 #     entity_id: ObjectId, // ID сущности, с которой работал пользователь (например, _id книги, автора и т.д.)
 #     created_at: Date // Дата создания записи
 
-from flask import jsonify
+from flask import jsonify, request
 from pymongo import MongoClient
 
 
@@ -24,8 +24,10 @@ class ActivitiesService:
             return jsonify({"message": "Hello World!"}), 200
         
         @self.__app.route("/activities", methods=["POST"])
-        def get_activities():            
-            return jsonify({"message": "post activities!"}), 200
+        def insert_activity():
+            body = request.get_json()  
+            print(body)          
+            return body, 200
 
 
 if __name__ == "__main__":
