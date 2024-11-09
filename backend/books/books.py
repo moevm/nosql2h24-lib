@@ -3,13 +3,15 @@ from pymongo import MongoClient
 
 
 class BooksService:
-    def __init__(self, app: any) -> None:
+    def __init__(self, app: any, mongo: any) -> None:
         self.__app = app
+        self.__mongo = mongo
         self.__registerRoutes()
 
     def __registerRoutes(self) -> None:
         @self.__app.route("/books", methods=["GET"])
         def get_books():
+            print(self.__mongo.list_database_names()) 
             return jsonify({"message": "get books!"}), 200
         
         @self.__app.route("/books", methods=["POST"])
