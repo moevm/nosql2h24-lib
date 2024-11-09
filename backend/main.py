@@ -8,15 +8,7 @@ class Core:
     """Core class"""
     def __init__(self) -> None:
         self.__app = Flask(__name__)
-        self.__books = booksModule.BooksService(self.__app)
-
-    def start(self) -> None:
-        """Run the REST-API service"""
-
-        books_thread = threading.Thread(target=self.__books.run)
-        books_thread.start()
-
-        books_thread.join()
+        self.__books = booksModule.BooksService(self.__app)    
 
     def run(self) -> None:
         """Start the Flask application to serve incoming requests."""
@@ -29,4 +21,4 @@ class Core:
 
 if __name__ == "__main__":
     core = Core()
-    core.start()
+    core.run()
