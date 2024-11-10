@@ -38,11 +38,18 @@ class UsersService:
         @self.__app.route("/users", methods=["POST"])
         def insert_user():     
             response_data, status, cookie = self.add_user(request.get_json())
-            response = make_response(response_data, status)
-            if cookie:
-                print(cookie)
-                response.set_cookie("user_id", str(cookie), max_age=60*60*24)
-            return response
+            return self.generate_auth_response(response_data, status, cookie)
+        
+        @self.__app.route("/auth", methods=["POST"])
+        def auth():     
+            response_data, status, cookie = self.authorization(request.get_json())
+            return self.generate_auth_response(response_data, status, cookie)
+    
+    def generate_auth_response(self, response_data, status, cookie):
+        response = make_response(response_data, status)
+        if cookie:
+            response.set_cookie("user_id", str(cookie), max_age=60*60*24)
+        return response
         
     def users_list(self):
         collection = self.__mongo[self.db_name][self.collection_name]
@@ -80,26 +87,31 @@ class UsersService:
         new_user = { 
             "login": login, 
             "hash_password": password,
-            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")    
+            "activities": [],
+            "visited_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),    
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "name": "Anon",
+            "surname": "Ymous"   
         }
         
         result = collection.insert_one(new_user)        
-
+        return self.__add_user_activity_request(result.inserted_id, login, "Added user")
+        
+    def __add_user_activity_request(self, user_id, login, description):
         session = requests.Session()
         session.cookies.set("user_id", login)
 
         post_data = {
-            "description": "Added user",
+            "description": description,
             "entity_type": "users",
-            "entity_id": str(result.inserted_id),
-            "activities": []
+            "entity_id": str(user_id)
         }
-        response = session.post(f"http://localhost:{self.__app.config["PORT"]}/activities", json=post_data)
 
+        response = session.post(f"http://localhost:{self.__app.config["PORT"]}/activities", json=post_data)
         if response.status_code == 201:
             activity_id = response.json()["activity"]
             self.__add_user_activity(login, activity_id)
-            return jsonify({"message": f"User {login} added successfully!"}), 201, login
+            return jsonify({"message": f"Succesfull!"}), 201, login
         else:
             return jsonify({"error": "Failed to retrieve user data"}), 500, login
         
@@ -108,7 +120,8 @@ class UsersService:
         result = collection.update_one(
             {"login": login},
             {
-                "$push": {"activities": ObjectId(activity_id)}
+                "$push": {"activities": ObjectId(activity_id)},
+                "$set": {"visited_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
             },
             upsert=False
         )
@@ -117,6 +130,18 @@ class UsersService:
             return {"message": f"Activities updated for user {login}"}, 200
         else:
             return {"error": "Failed to update activities"}, 500
+        
+    def authorization(self, request_data):
+        login, password = request_data["login"], request_data["hash_password"]
+
+        collection = self.__mongo[self.db_name][self.collection_name]
+        existing_user = collection.find_one({"login": login, "hash_password": password})
+        if existing_user:
+            return self.__add_user_activity_request(existing_user["_id"], login, "Auth")
+            #return jsonify({"message": "Succesfull"}), 201, login    
+
+        return jsonify({"error": "Bad request"}), 400, None
+        
 
 
 if __name__ == "__main__":
