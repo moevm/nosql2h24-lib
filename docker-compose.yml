@@ -1,18 +1,18 @@
 services:
-  # backend:
-  #   container_name: backend
-  #   build:
-  #     context: backend/
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "127.0.0.1:8081:8081"
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   networks:
-  #     - database
+  backend:
+    container_name: backend
+    build:
+      context: backend/
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - database
 
   db:
     container_name: database
@@ -30,8 +30,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-    # expose:
-    #   - "27017"
     ports:
       - "27017:27017"
     volumes:

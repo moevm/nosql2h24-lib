@@ -1,6 +1,10 @@
+import os
 from flask import Flask
-import importlib
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import importlib
+
+load_dotenv()
 
 booksModule = importlib.import_module("books.books")
 authorsModule = importlib.import_module("authors.authors")
@@ -10,7 +14,19 @@ activitiesModule = importlib.import_module("activities.activities")
 class Core:
     """Core class"""
     def __init__(self) -> None:
-        self.__client = MongoClient('mongodb://mongo:27017@0.0.0.0:27017')
+        mongo_user = os.getenv('MONGODB_USER')
+        mongo_password = os.getenv('MONGODB_PASSWORD')
+        mongo_host = os.getenv('MONGODB_HOST')  # Use service name in Docker Compose
+        mongo_port = os.getenv('MONGODB_PORT')
+        mongo_db = os.getenv('MONGODB_DB')
+
+        # Construct MongoDB URI
+        mongo_uri = f'mongodb://{mongo_user}:{mongo_password}@{mongo_host}:{mongo_port}/?authSource=admin'
+
+        # Initialize MongoDB client
+        self.__client = MongoClient(mongo_uri)
+        
+        # Initialize Flask app and services
         self.__app = Flask(__name__)
         self.__books = booksModule.BooksService(self.__app, self.__client)
         self.__authors = authorsModule.AuthorsService(self.__app, self.__client)
@@ -19,13 +35,8 @@ class Core:
 
     def run(self) -> None:
         """Start the Flask application to serve incoming requests."""
-        port = 8081
-        self.__app.config["PORT"] = port
-        self.__app.run(
-            host="0.0.0.0",
-            port=port,
-        )
-
+        port = int(os.getenv('HTTP_PORT', 8081))
+        self.__app.run(host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     core = Core()
