@@ -20,6 +20,7 @@
 
 from datetime import datetime
 from flask import jsonify, request
+from bson import ObjectId
 
 class BooksService:
     def __init__(self, app: any, mongo: any) -> None:
@@ -63,9 +64,9 @@ class BooksService:
         @self.__app.route("/books/<string:book>", methods=["GET"])
         def get_book_by_name(book: str):
             collection = self.__mongo[self.db_name][self.collection_name]
-            existing_book = collection.find_one({"name": book})
+            existing_book = collection.find_one({"_id": ObjectId(book)})
             if not existing_book:
-                return jsonify({"error": "User does not exist"}), 404
+                return jsonify({"error": "Book does not exist"}), 404
             existing_book["_id"] = str(existing_book["_id"])
 
             return jsonify(existing_book), 200
