@@ -28,8 +28,6 @@ export const Author = () => {
 			.then(setAuthor);
 	}, []);
 
-	console.log(author, books);
-
 	const [user, setUser] = useState<any>();
 
 	useEffect(() => {

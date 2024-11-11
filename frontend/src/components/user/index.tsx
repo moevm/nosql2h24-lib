@@ -15,6 +15,15 @@ export const User = () => {
 			.then((r) => r.json())
 			.then(setUser);
 	}, []);
+
+	const [avtiv, setavtiv] = useState<any>();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/activities")
+			.then((r) => r.json())
+			.then(setavtiv);
+	}, []);
+	console.log(avtiv);
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -57,55 +66,6 @@ export const User = () => {
 			</Box>
 
 			<Box py={2} px={3} border="1px solid black" mt={10} borderRadius={5}>
-				<Text>Взятые книги</Text>
-			</Box>
-
-			<Box py={5} borderRadius={10}>
-				<Table.Root size="sm">
-					<Table.Header>
-						<Table.Row>
-							<Table.ColumnHeader>Название</Table.ColumnHeader>
-							<Table.ColumnHeader>Автор</Table.ColumnHeader>
-							<Table.ColumnHeader>Жанр</Table.ColumnHeader>
-							<Table.ColumnHeader>Дата взятия</Table.ColumnHeader>
-						</Table.Row>
-					</Table.Header>
-					<Table.Body>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-					</Table.Body>
-				</Table.Root>
-			</Box>
-
-			<Box py={2} px={3} border="1px solid black" mt={10} borderRadius={5}>
 				<Text>История действий</Text>
 			</Box>
 
@@ -115,47 +75,17 @@ export const User = () => {
 						<Table.Row>
 							<Table.ColumnHeader>Название</Table.ColumnHeader>
 							<Table.ColumnHeader>Автор</Table.ColumnHeader>
-							<Table.ColumnHeader>Жанр</Table.ColumnHeader>
-							<Table.ColumnHeader>Дата взятия</Table.ColumnHeader>
-							<Table.ColumnHeader>Дата возврата</Table.ColumnHeader>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>-</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>-</Table.Cell>
-						</Table.Row>
+						{avtiv?.map((el: any) => {
+							return (
+								<Table.Row>
+									<Table.Cell>{el.description}</Table.Cell>
+									<Table.Cell>{el.user_id}</Table.Cell>
+								</Table.Row>
+							);
+						})}
 					</Table.Body>
 				</Table.Root>
 			</Box>
