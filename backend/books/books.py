@@ -85,8 +85,7 @@ class BooksService:
             existing_book = collection.find_one({"_id": ObjectId(book)})
             if not existing_book:
                 return jsonify({"error": "Book does not exist"}), 404
-            existing_book["_id"] = str(existing_book["_id"])
-            self.__mongo[self.db_name][self.collection_name].update_one({"_id": existing_book["_id"]}, {"$set": {"status": request.get_json()["login"]}})
+            collection.update_one({"_id": ObjectId(book)}, {"$set": {"status": request.get_json()["login"]}})
 
             return jsonify({"status": "success"}), 200
         
@@ -96,7 +95,7 @@ class BooksService:
             existing_book = collection.find_one({"_id": ObjectId(book)})
             if not existing_book:
                 return jsonify({"error": "Book does not exist"}), 404
-            self.__mongo[self.db_name][self.collection_name].update_one({"_id": existing_book["_id"]}, {"$set": {"status": None}})
+            self.__mongo[self.db_name][self.collection_name].update_one({"_id": ObjectId(book)}, {"$set": {"status": None}})
 
             return jsonify({"status": "success"}), 200
         
