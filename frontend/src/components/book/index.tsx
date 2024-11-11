@@ -27,6 +27,31 @@ export const Book = () => {
 			.then(setUser);
 	}, []);
 
+	function handle() {
+		if (book?.status) {
+			fetch("http://localhost:8081/return_book/" + book?._id, {
+				method: "POST",
+			}).then(() => {
+				fetch("http://localhost:8081/books/" + l.pathname.split("/").at(-1))
+					.then((r) => r.json())
+					.then(setBook);
+			});
+		} else {
+			fetch("http://localhost:8081/take_book/" + book?._id, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json;charset=utf-8",
+				},
+				body: JSON.stringify({
+					login: user?.login,
+				}),
+			}).then(() => {
+				fetch("http://localhost:8081/books/" + l.pathname.split("/").at(-1))
+					.then((r) => r.json())
+					.then(setBook);
+			});
+		}
+	}
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -78,7 +103,7 @@ export const Book = () => {
 			<Heading>Описание</Heading>
 			<Text pb={3}>{book?.description || "Нет описания"} </Text>
 			<Separator variant="solid" py={3} />
-			<Button>Взять книгу</Button>
+			<Button onClick={handle}>{book?.status ? "Вернуть книгу" : "Взять книгу"}</Button>
 		</Box>
 	);
 };

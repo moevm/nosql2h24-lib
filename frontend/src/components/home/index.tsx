@@ -61,8 +61,27 @@ export const Home = () => {
 				</Flex>
 
 				<Text px={5} fontSize={20} border="1px solid black" borderRadius={10}>
-					{user?.login}
+					{user?.login ? (
+						<Link to={`/user/${user?.login}`} className="link">
+							{user?.login}
+						</Link>
+					) : (
+						<Link to={`/auth`} className="link">
+							Войти
+						</Link>
+					)}
 				</Text>
+			</Flex>
+
+			<Flex mt={5}>
+				<Group attached>
+					<Button colorPalette="blue">
+						<Link to="/create/book">Создать книгу</Link>
+					</Button>
+					<Button colorPalette="blue">
+						<Link to="/create/author">Создать автора</Link>
+					</Button>
+				</Group>
 			</Flex>
 			<Box py={5} px={3} border="1px solid black" mt={10} borderRadius={10}>
 				<Text>Книги, изданные автором</Text>
