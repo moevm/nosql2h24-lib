@@ -7,6 +7,7 @@ import { DataListItem, DataListRoot } from "../ui/data-list";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { getCookie } from "../../utils";
+import { Link } from "react-router-dom";
 
 export const Book = () => {
 	const [book, setBook] = useState<any>();
@@ -36,9 +37,11 @@ export const Book = () => {
 						<Button>Начать поиск</Button>
 					</Group>
 					<Group>
-						<IconButton>
-							<FaHome />
-						</IconButton>
+						<Link to="/">
+							<IconButton>
+								<FaHome />
+							</IconButton>
+						</Link>
 						<IconButton>
 							<FaDownload />
 						</IconButton>
@@ -60,7 +63,13 @@ export const Book = () => {
 				<DataListRoot orientation="horizontal">
 					{Object.entries(book || {})
 						.map(([label, value]) =>
-							value ? <DataListItem key={label} label={mapper[label]} value={value as string} /> : null
+							value ? (
+								<DataListItem
+									key={label}
+									label={mapper[label as keyof typeof mapper]}
+									value={value as string}
+								/>
+							) : null
 						)
 						.filter(Boolean)}
 				</DataListRoot>

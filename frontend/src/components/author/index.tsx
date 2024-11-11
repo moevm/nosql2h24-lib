@@ -6,7 +6,7 @@ import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
 import { useLocation } from "react-router";
 import { getCookie } from "../../utils";
-
+import { Link } from "react-router-dom";
 export const Author = () => {
 	const [author, setAuthor] = useState<any>();
 	const [books, setBooks] = useState<any>();
@@ -48,9 +48,12 @@ export const Author = () => {
 						<Button>Начать поиск</Button>
 					</Group>
 					<Group>
-						<IconButton>
-							<FaHome />
-						</IconButton>
+						<Link to="/">
+							<IconButton>
+								<FaHome />
+							</IconButton>
+						</Link>
+
 						<IconButton>
 							<FaDownload />
 						</IconButton>
