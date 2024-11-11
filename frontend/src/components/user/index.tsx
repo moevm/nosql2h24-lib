@@ -3,8 +3,18 @@ import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
 import { DataListItem, DataListRoot } from "../ui/data-list";
+import { useState, useEffect } from "react";
+import { getCookie } from "../../utils";
+import { Link } from "react-router-dom";
 
 export const User = () => {
+	const [user, setUser] = useState<any>();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/users/" + getCookie("user_id"))
+			.then((r) => r.json())
+			.then(setUser);
+	}, []);
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -14,9 +24,11 @@ export const User = () => {
 						<Button>Начать поиск</Button>
 					</Group>
 					<Group>
-						<IconButton>
-							<FaHome />
-						</IconButton>
+						<Link to="/">
+							<IconButton>
+								<FaHome />
+							</IconButton>
+						</Link>
 						<IconButton>
 							<FaDownload />
 						</IconButton>
@@ -30,17 +42,17 @@ export const User = () => {
 				</Flex>
 
 				<Text px={5} fontSize={20} border="1px solid black" borderRadius={10}>
-					vova
+					{user?.login}
 				</Text>
 			</Flex>
 
 			<Box py={5} mt={10} borderRadius={10}>
 				<DataListRoot orientation="horizontal">
-					<DataListItem label="Логин" value="фыафыа" />
-					<DataListItem label="Имя" value="фыафыа" />
-					<DataListItem label="Фамилия" value="фыафыа" />
-					<DataListItem label="Дата регистрации" value="фыафыа" />
-					<DataListItem label="Последнее посещение" value="фыафыа" />
+					<DataListItem label="Логин" value={user?.login} />
+					<DataListItem label="Имя" value={user?.name} />
+					<DataListItem label="Фамилия" value={user?.surname} />
+					<DataListItem label="Дата регистрации" value={user?.created_at} />
+					<DataListItem label="Последнее посещение" value={user?.visited_at} />
 				</DataListRoot>
 			</Box>
 

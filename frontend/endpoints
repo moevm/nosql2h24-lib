@@ -1,0 +1,11 @@
+GET /books
+GET /authors
+GET /users
+GET /user/[login]
+GET /book/[name]
+
+POST /auth 
+login
+password
+
+
