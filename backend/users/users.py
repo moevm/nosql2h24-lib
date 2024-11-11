@@ -107,7 +107,7 @@ class UsersService:
             "entity_id": str(user_id)
         }
 
-        response = session.post(f"http://localhost:{self.__app.config["PORT"]}/activities", json=post_data)
+        response = session.post(f"http://localhost:8081/activities", json=post_data)
         if response.status_code == 201:
             activity_id = response.json()["activity"]
             self.__add_user_activity(login, activity_id)

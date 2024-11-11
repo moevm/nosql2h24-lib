@@ -79,6 +79,27 @@ class BooksService:
                 jsonify({"error": "The requested URL was not found on server."}),
             ), 404
         
+        @self.__app.route("/take_book/<string:book>", methods=["POST"])
+        def take_book(book):
+            collection = self.__mongo[self.db_name][self.collection_name]
+            existing_book = collection.find_one({"_id": ObjectId(book)})
+            if not existing_book:
+                return jsonify({"error": "Book does not exist"}), 404
+            existing_book["_id"] = str(existing_book["_id"])
+            self.__mongo[self.db_name][self.collection_name].update_one({"_id": existing_book["_id"]}, {"$set": {"status": request.get_json()["login"]}})
+
+            return jsonify({"status": "success"}), 200
+        
+        @self.__app.route("/return_book/<string:book>", methods=["POST"])
+        def return_book(book):
+            collection = self.__mongo[self.db_name][self.collection_name]
+            existing_book = collection.find_one({"_id": ObjectId(book)})
+            if not existing_book:
+                return jsonify({"error": "Book does not exist"}), 404
+            self.__mongo[self.db_name][self.collection_name].update_one({"_id": existing_book["_id"]}, {"$set": {"status": None}})
+
+            return jsonify({"status": "success"}), 200
+        
     def insertBook(self, request_data):
         if not request_data or "name" not in request_data or "genre" not in request_data:
             return jsonify({"error": "Missing required fields in request data"}), 400
@@ -100,6 +121,7 @@ class BooksService:
             "status": request_data.get("status"),
             "description": request_data.get("description"),
             "shelf": request_data.get("shelf"),
+            "status": request_data.get("status"),
             "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
         }
         collection.insert_one(new_book)
