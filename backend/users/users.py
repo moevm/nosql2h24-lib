@@ -24,7 +24,9 @@ class UsersService:
     def __init__(self, app: any, mongo: any) -> None:
         self.__app = app
         self.__mongo = mongo
+        self.add_default_user()
         self.__registerRoutes()
+        
 
     def __registerRoutes(self) -> None:
         @self.__app.route("/users", methods=["GET"])
@@ -45,6 +47,26 @@ class UsersService:
             response_data, status, cookie = self.authorization(request.get_json())
             return self.generate_auth_response(response_data, status, cookie)
     
+    def add_default_user(self):
+        login = "root"
+        password = "123"
+        collection = self.__mongo[self.db_name][self.collection_name]
+        existing_user = collection.find_one({"login": login})
+        if existing_user:
+            return
+
+        new_user = { 
+            "login": login, 
+            "hash_password": password,
+            "activities": [],
+            "visited_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),    
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "name": "Vladimir",
+            "surname": "Pushkin"   
+        }
+        
+        collection.insert_one(new_user)
+
     def generate_auth_response(self, response_data, status, cookie):
         response = make_response(response_data, status)
         if cookie:
@@ -98,7 +120,9 @@ class UsersService:
             "surname": request_data.get('surname')   
         }
         
-        result = collection.insert_one(new_user)        
+        result = collection.insert_one(new_user)
+        if not result:
+            return jsonify({"error": "Error"}), 500, None     
         return self.__add_user_activity_request(result.inserted_id, login, "Added user")
         
     def __add_user_activity_request(self, user_id, login, description):
