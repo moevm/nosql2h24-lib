@@ -1,14 +1,48 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Button, Flex, Group, Heading, IconButton, Table, Text } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
+import { useLocation } from "react-router";
+import { getCookie } from "../../utils";
 
 export const Author = () => {
+	const [author, setAuthor] = useState<any>();
+	const [books, setBooks] = useState<any>();
+	const l = useLocation();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/authors/" + l.pathname.split("/").at(-1))
+			.then((r) => r.json())
+			.then((r) => {
+				Promise.all(
+					r?.books?.map((el: any) => {
+						return fetch("http://localhost:8081/books/" + el);
+					})
+				)
+					.then((el) => Promise.all(el.map((i) => i.json())))
+					.then(setBooks);
+				return r;
+			})
+			.then(setAuthor);
+	}, []);
+
+	console.log(author, books);
+
+	const [user, setUser] = useState<any>();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/users/" + getCookie("user_id"))
+			.then((r) => r.json())
+			.then(setUser);
+	}, []);
+
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between" mb={10}>
 				<Flex gap="40px" alignItems="center">
-					<Text>Дональд Вова</Text>
+					<Text>{author?.name}</Text>
 					<Group attached>
 						<Button>Фильтр</Button>
 						<Button>Начать поиск</Button>
@@ -30,16 +64,12 @@ export const Author = () => {
 				</Flex>
 
 				<Text px={5} fontSize={20} border="1px solid black" borderRadius={10}>
-					vova
+					{user?.name}
 				</Text>
 			</Flex>
 
 			<Heading>Биография</Heading>
-			<Text pb={3}>
-				Lorem ipsum dolor sit, amet consectetur adipisicing elit. Praesentium, voluptatum nobis. Vitae
-				accusamus corporis officia adipisci perferendis sequi sed tempore quia illo minus velit deleniti, a
-				rerum fugit ratione aliquid.
-			</Text>
+			<Text pb={3}>{author?.biography}</Text>
 
 			<Box py={5} mt={10} borderRadius={10}>
 				<Table.Root size="sm">
@@ -54,46 +84,18 @@ export const Author = () => {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
+						{books?.map((el: any) => {
+							return (
+								<Table.Row key={el}>
+									<Table.Cell>{el?.name || "-"}</Table.Cell>
+									<Table.Cell>{el?.author || "-"}</Table.Cell>
+									<Table.Cell>{el?.genre || "-"}</Table.Cell>
+									<Table.Cell>{el?.release_year || "-"}</Table.Cell>
+									<Table.Cell>{el?.num_pages || "-"}</Table.Cell>
+									<Table.Cell>{el?.uploaded_by || "-"}</Table.Cell>
+								</Table.Row>
+							);
+						})}
 					</Table.Body>
 				</Table.Root>
 			</Box>

@@ -1,9 +1,20 @@
 import { Box, Button, Flex, Group, IconButton, Input, Text, Table } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
 
 export const Users = () => {
+	const [users, setUsers] = useState<any>(null);
+
+	useEffect(() => {
+		fetch("http://localhost:8081/users")
+			.then((res) => res.json())
+			.then(setUsers);
+	}, []);
+
+	console.log(users);
+
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -41,43 +52,25 @@ export const Users = () => {
 				<Table.Root size="sm">
 					<Table.Header>
 						<Table.Row>
+							<Table.ColumnHeader>ID</Table.ColumnHeader>
 							<Table.ColumnHeader>Логин</Table.ColumnHeader>
 							<Table.ColumnHeader>Дата регистрации</Table.ColumnHeader>
-							<Table.ColumnHeader>Почта</Table.ColumnHeader>
+							<Table.ColumnHeader>Имя</Table.ColumnHeader>
 							<Table.ColumnHeader>Последнее посещение</Table.ColumnHeader>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>{" "}
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>{" "}
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>{" "}
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
+						{users?.map((el: any) => {
+							return (
+								<Table.Row key={el.login}>
+									<Table.Cell>{el?._id}</Table.Cell>
+									<Table.Cell>{el?.login}</Table.Cell>
+									<Table.Cell>{el?.created_at}</Table.Cell>
+									<Table.Cell>{el?.name}</Table.Cell>
+									<Table.Cell>{el?.visited_at}</Table.Cell>
+								</Table.Row>
+							);
+						})}
 					</Table.Body>
 				</Table.Root>
 			</Box>

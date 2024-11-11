@@ -1,9 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Button, Flex, Group, IconButton, Input, Text, Table } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
+import { getCookie } from "../../utils";
 
 export const Home = () => {
+	const [user, setUser] = useState<any>();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/users/" + getCookie("user_id"))
+			.then((r) => r.json())
+			.then(setUser);
+	}, []);
+
+	const [books, setBooks] = useState<any>();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/books")
+			.then((r) => r.json())
+			.then(setBooks);
+	}, []);
+
+	console.log(books);
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -30,7 +50,7 @@ export const Home = () => {
 				</Flex>
 
 				<Text px={5} fontSize={20} border="1px solid black" borderRadius={10}>
-					vova
+					{user?.login}
 				</Text>
 			</Flex>
 			<Box py={5} px={3} border="1px solid black" mt={10} borderRadius={10}>
@@ -50,46 +70,18 @@ export const Home = () => {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
-						<Table.Row>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-							<Table.Cell>1</Table.Cell>
-						</Table.Row>
+						{books?.map((el: any) => {
+							return (
+								<Table.Row key={el}>
+									<Table.Cell>{el?.name || "-"}</Table.Cell>
+									<Table.Cell>{el?.author || "-"}</Table.Cell>
+									<Table.Cell>{el?.genre || "-"}</Table.Cell>
+									<Table.Cell>{el?.release_year || "-"}</Table.Cell>
+									<Table.Cell>{el?.num_pages || "-"}</Table.Cell>
+									<Table.Cell>{el?.uploaded_by || "-"}</Table.Cell>
+								</Table.Row>
+							);
+						})}
 					</Table.Body>
 				</Table.Root>
 			</Box>
