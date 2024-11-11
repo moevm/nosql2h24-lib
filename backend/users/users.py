@@ -94,8 +94,8 @@ class UsersService:
             "activities": [],
             "visited_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),    
             "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "name": "Anon",
-            "surname": "Ymous"   
+            "name": request_data.get('name'),
+            "surname": request_data.get('surname')   
         }
         
         result = collection.insert_one(new_user)        
