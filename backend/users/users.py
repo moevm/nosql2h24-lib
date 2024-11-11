@@ -71,6 +71,10 @@ class UsersService:
         if not existing_user:
             return jsonify({"error": "User does not exist"}), 404
         existing_user["_id"] = str(existing_user["_id"])
+        activities = []
+        for activity in existing_user["activities"]:
+            activities.append(str(activity))
+        existing_user["activities"] = activities
         return jsonify(existing_user), 200
         
     def add_user(self, request_data):
