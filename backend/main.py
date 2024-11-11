@@ -3,6 +3,7 @@ from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import importlib
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -28,6 +29,8 @@ class Core:
         
         # Initialize Flask app and services
         self.__app = Flask(__name__)
+
+        CORS(self.__app, supports_credentials=True, origins=["http://localhost:5173"])
         self.__books = booksModule.BooksService(self.__app, self.__client)
         self.__authors = authorsModule.AuthorsService(self.__app, self.__client)
         self.__users = usersModule.UsersService(self.__app, self.__client)
