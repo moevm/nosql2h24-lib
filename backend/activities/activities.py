@@ -37,6 +37,9 @@ class ActivitiesService:
 
         for activity in activities:
             activity["_id"] = str(activity["_id"])
+            for key, value in activity.items():
+                if isinstance(value, ObjectId):
+                    activity[key] = str(value)
 
         return jsonify(activities), 200
     

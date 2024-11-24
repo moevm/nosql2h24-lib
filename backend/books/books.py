@@ -18,8 +18,9 @@
 #    }
 # }
 
+import requests
 from datetime import datetime
-from flask import jsonify, request
+from flask import json, jsonify, request
 from bson import ObjectId
 import re
 
@@ -124,6 +125,61 @@ class BooksService:
                 book["_id"] = str(book["_id"])
             
             return jsonify(combined_books), 200
+        
+        @self.__app.route('/export', methods=['GET'])
+        def export_data():
+            session = requests.Session()
+
+            data = {}
+            response = session.get("http://localhost:8081/activities")
+            if response.status_code == 201 or response.status_code == 200:
+                data["activities"] = response.json()
+            else:
+                return jsonify({"error": "Failed to retrieve data"}), 500
+            
+            response = session.get(f"http://localhost:8081/books")
+            if response.status_code == 201 or response.status_code == 200:
+                data["books"] = response.json()
+            else:
+                return jsonify({"error": "Failed to retrieve data"}), 500
+            
+            response = session.get(f"http://localhost:8081/authors")
+            if response.status_code == 201 or response.status_code == 200:
+                data["authors"] = response.json()
+            else:
+                return jsonify({"error": "Failed to retrieve data"}), 500
+            
+            response = session.get(f"http://localhost:8081/users")
+            if response.status_code == 201 or response.status_code == 200:
+                data["users"] = response.json()
+            else:
+                return jsonify({"error": "Failed to retrieve data"}), 500
+
+            return jsonify(data), 200
+
+        @self.__app.route('/import', methods=['POST'])
+        def import_data():
+            if request.files.get('file').read():
+                return jsonify({"error": "Нет файла для импорта"}), 400
+
+            file = request.files.get('file').read()
+            if file.filename == '':
+                return jsonify({"error": "Нет выбранного файла"}), 400
+
+            try:
+                data = json.load(file)
+            except json.JSONDecodeError:
+                return jsonify({"error": "Ошибка при обработке JSON"}), 400
+
+            for collection_name, documents in data.items():
+                collection = self.__mongo[self.db_name][collection_name]
+                collection.drop()
+
+                collection = self.__mongo[self.db_name][collection_name]
+                if documents:
+                    collection.insert_many(documents)
+
+            return jsonify({"message": "Импорт завершен!"}), 200
 
 
     def insertBook(self, request_data):
