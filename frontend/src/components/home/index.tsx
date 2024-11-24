@@ -1,11 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Flex, Group, IconButton, Input, Text, Table } from "@chakra-ui/react";
+import {
+	Box,
+	Button,
+	Flex,
+	Group,
+	IconButton,
+	Input,
+	Text,
+	Table,
+	Field,
+	Fieldset,
+	NativeSelectField,
+	NativeSelectRoot,
+	Stack,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
 import { getCookie } from "../../utils";
 import { Link } from "react-router-dom";
+import {
+	DrawerRoot,
+	DrawerActionTrigger,
+	DrawerBackdrop,
+	DrawerBody,
+	DrawerCloseTrigger,
+	DrawerContent,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from "../ui/drawer";
 
 export const Home = () => {
 	const [user, setUser] = useState<any>();
@@ -37,9 +63,85 @@ export const Home = () => {
 			<Flex justifyContent="space-between">
 				<Flex gap="40px">
 					<Group attached>
-						<Input />
-						<Button>Фильтр</Button>
-						<Button>Начать поиск</Button>
+						<DrawerRoot placement="start">
+							<DrawerBackdrop />
+							<DrawerTrigger asChild>
+								<Button variant="subtle">Поиск по авторам</Button>
+							</DrawerTrigger>
+							<DrawerContent>
+								<DrawerHeader>
+									<DrawerTitle>Drawer Title</DrawerTitle>
+								</DrawerHeader>
+								<DrawerBody>
+									<p>
+										Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+										ut labore et dolore magna aliqua.
+									</p>
+								</DrawerBody>
+								<DrawerFooter>
+									<DrawerActionTrigger asChild>
+										<Button variant="outline">Закрыть</Button>
+									</DrawerActionTrigger>
+									<DrawerActionTrigger asChild>
+										<Button>Поиск</Button>
+									</DrawerActionTrigger>
+								</DrawerFooter>
+								<DrawerCloseTrigger />
+							</DrawerContent>
+						</DrawerRoot>
+
+						<DrawerRoot placement="start">
+							<DrawerBackdrop />
+							<DrawerTrigger asChild>
+								<Button variant="subtle">Поиск по книгам</Button>
+							</DrawerTrigger>
+							<DrawerContent>
+								<DrawerHeader>
+									<DrawerTitle>Drawer Title</DrawerTitle>
+								</DrawerHeader>
+								<DrawerBody>
+									<Fieldset.Root size="lg" maxW="md">
+										<Stack>
+											<Fieldset.Legend>Contact details</Fieldset.Legend>
+											<Fieldset.HelperText>Please provide your contact details below.</Fieldset.HelperText>
+										</Stack>
+
+										<Fieldset.Content>
+											<Field label="Name">
+												<Input name="name" />
+											</Field>
+
+											<Field label="Email address">
+												<Input name="email" type="email" />
+											</Field>
+
+											<Field label="Country">
+												<NativeSelectRoot>
+													<NativeSelectField
+														name="country"
+														items={["United Kingdom (UK)", "Canada (CA)", "United States (US)"]}
+													/>
+												</NativeSelectRoot>
+											</Field>
+										</Fieldset.Content>
+
+										<Button type="submit" alignSelf="flex-start">
+											Submit
+										</Button>
+									</Fieldset.Root>
+								</DrawerBody>
+								<DrawerFooter>
+									<DrawerActionTrigger asChild>
+										<Button variant="outline">Закрыть</Button>
+									</DrawerActionTrigger>
+									<DrawerActionTrigger asChild>
+										<Button>Поиск</Button>
+									</DrawerActionTrigger>
+								</DrawerFooter>
+								<DrawerCloseTrigger />
+							</DrawerContent>
+						</DrawerRoot>
+
 						<Button>
 							<Link to="/users">Список пользователей</Link>
 						</Button>
