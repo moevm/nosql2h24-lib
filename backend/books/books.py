@@ -21,6 +21,8 @@
 from datetime import datetime
 from flask import jsonify, request
 from bson import ObjectId
+import re
+
 
 class BooksService:
     def __init__(self, app: any, mongo: any) -> None:
@@ -98,7 +100,32 @@ class BooksService:
             self.__mongo[self.db_name][self.collection_name].update_one({"_id": ObjectId(book)}, {"$set": {"status": None}})
 
             return jsonify({"status": "success"}), 200
-        
+
+        @self.__app.route("/books/search/<string:search_field>/<string:search_term>", methods=["GET"])
+        def search_books(search_field: str, search_term: str):
+            collection = self.__mongo[self.db_name][self.collection_name]
+            search_term = re.escape(search_term)
+
+            if search_field == "name":
+                existing_books = collection.find({"name": re.compile(search_term, re.IGNORECASE)})
+            elif search_field == "author":
+                existing_books = collection.find({"author": re.compile(search_term, re.IGNORECASE)})
+            elif search_field == "description":
+                existing_books = collection.find({"description": re.compile(search_term, re.IGNORECASE)})
+            elif search_field == "genre":
+                existing_books = collection.find({"genre": re.compile(search_term, re.IGNORECASE)})
+            elif search_field == "href":
+                existing_books = collection.find({"href": re.compile(search_term, re.IGNORECASE)})
+            else:
+                return jsonify({"error": "Invalid search field"}), 400
+
+            books = list(existing_books)
+
+            for book in books:
+                book["_id"] = str(book["_id"])
+
+            return jsonify(books), 200
+
     def insertBook(self, request_data):
         if not request_data or "name" not in request_data or "genre" not in request_data:
             return jsonify({"error": "Missing required fields in request data"}), 400
