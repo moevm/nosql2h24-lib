@@ -18,7 +18,6 @@
 #    }
 # }
 
-from functools import reduce
 from datetime import datetime
 from flask import jsonify, request
 from bson import ObjectId

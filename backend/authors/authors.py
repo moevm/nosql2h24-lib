@@ -13,6 +13,7 @@
 #    books: ObjectId[] // Список ObjectId книг, связанных с автором
 # }
 
+import re
 from flask import jsonify, request
 
 class AuthorsService:
@@ -43,6 +44,33 @@ class AuthorsService:
         @self.__app.route("/authors/<string:name>", methods=["DELETE"])
         def delete_author(name):
             return self.delete_author(name)
+        
+        @self.__app.route("/authors/search", methods=["POST"])
+        def search_authors():
+            request_data = request.get_json()
+            search_fields = request_data.get("search_fields", [])
+            search_terms = request_data.get("search_terms", [])
+
+            if len(search_fields) != len(search_terms):
+                return jsonify({"error": "The number of search fields must match the number of search terms"}), 400
+
+            collection = self.__mongo[self.db_name][self.collection_name]
+
+            query = {"$and": []}
+            for search_field, search_term in zip(search_fields, search_terms):
+                search_term = re.escape(search_term)
+                query["$and"].append({search_field: re.compile(search_term, re.IGNORECASE)})
+
+            books_cursor = collection.find(query)
+            combined_authors = list(books_cursor)
+            for author in combined_authors:
+                author["_id"] = str(author["_id"])
+
+                # TODO мб сломается на фронте
+                for i in range(len(author["books"])):
+                    author["books"][i] = str(author["books"][i])
+            
+            return jsonify(combined_authors), 200
 
     def authors_list(self):
         collection = self.__mongo[self.db_name][self.collection_name]
