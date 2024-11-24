@@ -18,6 +18,7 @@
 #    }
 # }
 
+from functools import reduce
 from datetime import datetime
 from flask import jsonify, request
 from bson import ObjectId
@@ -101,30 +102,30 @@ class BooksService:
 
             return jsonify({"status": "success"}), 200
 
-        @self.__app.route("/books/search/<string:search_field>/<string:search_term>", methods=["GET"])
-        def search_books(search_field: str, search_term: str):
+        @self.__app.route("/books/search", methods=["POST"])
+        def search_books():
+            request_data = request.get_json()
+            search_fields = request_data.get("search_fields", [])
+            search_terms = request_data.get("search_terms", [])
+
+            if len(search_fields) != len(search_terms):
+                return jsonify({"error": "The number of search fields must match the number of search terms"}), 400
+
             collection = self.__mongo[self.db_name][self.collection_name]
-            search_term = re.escape(search_term)
+            combined_books = {}
 
-            if search_field == "name":
-                existing_books = collection.find({"name": re.compile(search_term, re.IGNORECASE)})
-            elif search_field == "author":
-                existing_books = collection.find({"author": re.compile(search_term, re.IGNORECASE)})
-            elif search_field == "description":
-                existing_books = collection.find({"description": re.compile(search_term, re.IGNORECASE)})
-            elif search_field == "genre":
-                existing_books = collection.find({"genre": re.compile(search_term, re.IGNORECASE)})
-            elif search_field == "href":
-                existing_books = collection.find({"href": re.compile(search_term, re.IGNORECASE)})
-            else:
-                return jsonify({"error": "Invalid search field"}), 400
+            query = {"$and": []}
+            for search_field, search_term in zip(search_fields, search_terms):
+                search_term = re.escape(search_term)
+                query["$and"].append({search_field: re.compile(search_term, re.IGNORECASE)})
 
-            books = list(existing_books)
-
-            for book in books:
+            books_cursor = collection.find(query)
+            combined_books = list(books_cursor)
+            for book in combined_books:
                 book["_id"] = str(book["_id"])
+            
+            return jsonify(combined_books), 200
 
-            return jsonify(books), 200
 
     def insertBook(self, request_data):
         if not request_data or "name" not in request_data or "genre" not in request_data:
