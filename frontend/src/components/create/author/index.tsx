@@ -1,11 +1,7 @@
-import { Box, Button, Flex, Group, IconButton, Input } from "@chakra-ui/react";
+import { Box, Button, Flex, Input } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router";
 import { getCookie } from "../../../utils";
-import { Link } from "react-router-dom";
-import { CiExport } from "react-icons/ci";
-import { FaHome, FaDownload } from "react-icons/fa";
-import { TbLogs } from "react-icons/tb";
 
 export const CreateAuthor = () => {
 	const [name, setName] = useState("");

@@ -8,11 +8,14 @@ import {
 	Input,
 	Text,
 	Table,
-	Field,
 	Fieldset,
-	NativeSelectField,
-	NativeSelectRoot,
 	Stack,
+	SelectContent,
+	SelectItem,
+	SelectRoot,
+	SelectTrigger,
+	SelectValueText,
+	createListCollection,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { CiExport } from "react-icons/ci";
@@ -32,6 +35,8 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "../ui/drawer";
+import { Field } from "../ui/field";
+import { SelectLabel } from "../ui/select";
 
 export const Home = () => {
 	const [user, setUser] = useState<any>();
@@ -58,6 +63,36 @@ export const Home = () => {
 			.then(setAuthors);
 	}, []);
 
+	const geners = createListCollection({
+		items: [
+			{ label: "Фантастика", value: "Фантастика" },
+			{ label: "Ужасы", value: "Ужасы" },
+			{ label: "Гарем", value: "Гарем" },
+			{ label: "Иссекай", value: "Иссекай" },
+			{ label: "Юри", value: "Юри" },
+			{ label: "Сёдзе-ай", value: "Сёдзе-ай" },
+		],
+	});
+
+	const [bookForm, setBookForm] = useState({
+		name: "",
+		release_year: "",
+		description: "",
+		author: "",
+		num_pages: "",
+		genre: "",
+		link: "",
+	});
+
+	const [authorForm, setAuthorForm] = useState({
+		name: "",
+		biography: "",
+		books: "",
+	});
+	function handleBookSearch() {}
+
+	function handleAuthSearch() {}
+
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -70,20 +105,42 @@ export const Home = () => {
 							</DrawerTrigger>
 							<DrawerContent>
 								<DrawerHeader>
-									<DrawerTitle>Drawer Title</DrawerTitle>
+									<DrawerTitle>Поиск по авторам</DrawerTitle>
 								</DrawerHeader>
 								<DrawerBody>
-									<p>
-										Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
-										ut labore et dolore magna aliqua.
-									</p>
+									<Fieldset.Root size="lg" maxW="md">
+										<Fieldset.Content>
+											<Stack>
+												<Field label="Имя">
+													<Input
+														value={authorForm.name}
+														onChange={(e) => setAuthorForm((l) => ({ ...l, name: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Биография">
+													<Input
+														value={authorForm.biography}
+														onChange={(e) => setAuthorForm((l) => ({ ...l, author: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Книга">
+													<Input
+														value={authorForm.books}
+														onChange={(e) => setAuthorForm((l) => ({ ...l, description: e.target.value }))}
+													/>
+												</Field>
+											</Stack>
+										</Fieldset.Content>
+									</Fieldset.Root>
 								</DrawerBody>
 								<DrawerFooter>
 									<DrawerActionTrigger asChild>
 										<Button variant="outline">Закрыть</Button>
 									</DrawerActionTrigger>
 									<DrawerActionTrigger asChild>
-										<Button>Поиск</Button>
+										<Button onClick={handleAuthSearch}>Поиск</Button>
 									</DrawerActionTrigger>
 								</DrawerFooter>
 								<DrawerCloseTrigger />
@@ -97,37 +154,70 @@ export const Home = () => {
 							</DrawerTrigger>
 							<DrawerContent>
 								<DrawerHeader>
-									<DrawerTitle>Drawer Title</DrawerTitle>
+									<DrawerTitle>Поиск по книгам</DrawerTitle>
 								</DrawerHeader>
 								<DrawerBody>
 									<Fieldset.Root size="lg" maxW="md">
-										<Stack>
-											<Fieldset.Legend>Contact details</Fieldset.Legend>
-											<Fieldset.HelperText>Please provide your contact details below.</Fieldset.HelperText>
-										</Stack>
-
 										<Fieldset.Content>
-											<Field label="Name">
-												<Input name="name" />
-											</Field>
-
-											<Field label="Email address">
-												<Input name="email" type="email" />
-											</Field>
-
-											<Field label="Country">
-												<NativeSelectRoot>
-													<NativeSelectField
-														name="country"
-														items={["United Kingdom (UK)", "Canada (CA)", "United States (US)"]}
+											<Stack>
+												<Field label="Название">
+													<Input
+														value={bookForm.name}
+														onChange={(e) => setBookForm((l) => ({ ...l, name: e.target.value }))}
 													/>
-												</NativeSelectRoot>
-											</Field>
-										</Fieldset.Content>
+												</Field>
 
-										<Button type="submit" alignSelf="flex-start">
-											Submit
-										</Button>
+												<Field label="Автор">
+													<Input
+														value={bookForm.author}
+														onChange={(e) => setBookForm((l) => ({ ...l, author: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Описание">
+													<Input
+														value={bookForm.description}
+														onChange={(e) => setBookForm((l) => ({ ...l, description: e.target.value }))}
+													/>
+												</Field>
+												<Field label="Ссылка">
+													<Input
+														value={bookForm.link}
+														onChange={(e) => setBookForm((l) => ({ ...l, link: e.target.value }))}
+													/>
+												</Field>
+												<Field label="Кл-во страниц">
+													<Input
+														value={bookForm.num_pages}
+														onChange={(e) => setBookForm((l) => ({ ...l, num_pages: e.target.value }))}
+													/>
+												</Field>
+												<Field label="Год">
+													<Input
+														type="number"
+														value={bookForm.release_year}
+														onChange={(e) => setBookForm((l) => ({ ...l, release_year: e.target.value }))}
+													/>
+												</Field>
+											</Stack>
+
+											<SelectRoot
+												collection={geners}
+												onValueChange={(e) => setBookForm((l) => ({ ...l, genre: e.value[0] }))}
+											>
+												<SelectLabel>Жанр</SelectLabel>
+												<SelectTrigger>
+													<SelectValueText placeholder="Выдерете жанр" />
+												</SelectTrigger>
+												<SelectContent>
+													{geners.items.map((movie) => (
+														<SelectItem item={movie} key={movie.value}>
+															{movie.label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</SelectRoot>
+										</Fieldset.Content>
 									</Fieldset.Root>
 								</DrawerBody>
 								<DrawerFooter>
@@ -135,7 +225,7 @@ export const Home = () => {
 										<Button variant="outline">Закрыть</Button>
 									</DrawerActionTrigger>
 									<DrawerActionTrigger asChild>
-										<Button>Поиск</Button>
+										<Button onClick={handleBookSearch}>Поиск</Button>
 									</DrawerActionTrigger>
 								</DrawerFooter>
 								<DrawerCloseTrigger />
