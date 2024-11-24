@@ -1,11 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Flex, Group, IconButton, Input, Text, Table } from "@chakra-ui/react";
+import {
+	Box,
+	Button,
+	Flex,
+	Group,
+	IconButton,
+	Input,
+	Text,
+	Table,
+	Fieldset,
+	Stack,
+	SelectContent,
+	SelectItem,
+	SelectRoot,
+	SelectTrigger,
+	SelectValueText,
+	createListCollection,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
 import { getCookie } from "../../utils";
 import { Link } from "react-router-dom";
+import {
+	DrawerRoot,
+	DrawerActionTrigger,
+	DrawerBackdrop,
+	DrawerBody,
+	DrawerCloseTrigger,
+	DrawerContent,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from "../ui/drawer";
+import { Field } from "../ui/field";
+import { SelectLabel } from "../ui/select";
 
 export const Home = () => {
 	const [user, setUser] = useState<any>();
@@ -32,14 +63,175 @@ export const Home = () => {
 			.then(setAuthors);
 	}, []);
 
+	const geners = createListCollection({
+		items: [
+			{ label: "Фантастика", value: "Фантастика" },
+			{ label: "Ужасы", value: "Ужасы" },
+			{ label: "Гарем", value: "Гарем" },
+			{ label: "Иссекай", value: "Иссекай" },
+			{ label: "Юри", value: "Юри" },
+			{ label: "Сёдзе-ай", value: "Сёдзе-ай" },
+		],
+	});
+
+	const [bookForm, setBookForm] = useState({
+		name: "",
+		release_year: "",
+		description: "",
+		author: "",
+		num_pages: "",
+		genre: "",
+		link: "",
+	});
+
+	const [authorForm, setAuthorForm] = useState({
+		name: "",
+		biography: "",
+		books: "",
+	});
+	function handleBookSearch() {}
+
+	function handleAuthSearch() {}
+
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
 				<Flex gap="40px">
 					<Group attached>
-						<Input />
-						<Button>Фильтр</Button>
-						<Button>Начать поиск</Button>
+						<DrawerRoot placement="start">
+							<DrawerBackdrop />
+							<DrawerTrigger asChild>
+								<Button variant="subtle">Поиск по авторам</Button>
+							</DrawerTrigger>
+							<DrawerContent>
+								<DrawerHeader>
+									<DrawerTitle>Поиск по авторам</DrawerTitle>
+								</DrawerHeader>
+								<DrawerBody>
+									<Fieldset.Root size="lg" maxW="md">
+										<Fieldset.Content>
+											<Stack>
+												<Field label="Имя">
+													<Input
+														value={authorForm.name}
+														onChange={(e) => setAuthorForm((l) => ({ ...l, name: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Биография">
+													<Input
+														value={authorForm.biography}
+														onChange={(e) => setAuthorForm((l) => ({ ...l, author: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Книга">
+													<Input
+														value={authorForm.books}
+														onChange={(e) => setAuthorForm((l) => ({ ...l, description: e.target.value }))}
+													/>
+												</Field>
+											</Stack>
+										</Fieldset.Content>
+									</Fieldset.Root>
+								</DrawerBody>
+								<DrawerFooter>
+									<DrawerActionTrigger asChild>
+										<Button variant="outline">Закрыть</Button>
+									</DrawerActionTrigger>
+									<DrawerActionTrigger asChild>
+										<Button onClick={handleAuthSearch}>Поиск</Button>
+									</DrawerActionTrigger>
+								</DrawerFooter>
+								<DrawerCloseTrigger />
+							</DrawerContent>
+						</DrawerRoot>
+
+						<DrawerRoot placement="start">
+							<DrawerBackdrop />
+							<DrawerTrigger asChild>
+								<Button variant="subtle">Поиск по книгам</Button>
+							</DrawerTrigger>
+							<DrawerContent>
+								<DrawerHeader>
+									<DrawerTitle>Поиск по книгам</DrawerTitle>
+								</DrawerHeader>
+								<DrawerBody>
+									<Fieldset.Root size="lg" maxW="md">
+										<Fieldset.Content>
+											<Stack>
+												<Field label="Название">
+													<Input
+														value={bookForm.name}
+														onChange={(e) => setBookForm((l) => ({ ...l, name: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Автор">
+													<Input
+														value={bookForm.author}
+														onChange={(e) => setBookForm((l) => ({ ...l, author: e.target.value }))}
+													/>
+												</Field>
+
+												<Field label="Описание">
+													<Input
+														value={bookForm.description}
+														onChange={(e) => setBookForm((l) => ({ ...l, description: e.target.value }))}
+													/>
+												</Field>
+												<Field label="Ссылка">
+													<Input
+														value={bookForm.link}
+														onChange={(e) => setBookForm((l) => ({ ...l, link: e.target.value }))}
+													/>
+												</Field>
+												<Field label="Кл-во страниц">
+													<Input
+														value={bookForm.num_pages}
+														onChange={(e) => setBookForm((l) => ({ ...l, num_pages: e.target.value }))}
+													/>
+												</Field>
+												<Field label="Год">
+													<Input
+														type="number"
+														value={bookForm.release_year}
+														onChange={(e) => setBookForm((l) => ({ ...l, release_year: e.target.value }))}
+													/>
+												</Field>
+											</Stack>
+
+											<SelectRoot
+												collection={geners}
+												onValueChange={(e) => setBookForm((l) => ({ ...l, genre: e.value[0] }))}
+											>
+												<SelectLabel>Жанр</SelectLabel>
+												<SelectTrigger>
+													<SelectValueText placeholder="Выдерете жанр" />
+												</SelectTrigger>
+												<SelectContent>
+													{geners.items.map((movie) => (
+														<SelectItem item={movie} key={movie.value}>
+															{movie.label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</SelectRoot>
+										</Fieldset.Content>
+									</Fieldset.Root>
+								</DrawerBody>
+								<DrawerFooter>
+									<DrawerActionTrigger asChild>
+										<Button variant="outline">Закрыть</Button>
+									</DrawerActionTrigger>
+									<DrawerActionTrigger asChild>
+										<Button onClick={handleBookSearch}>Поиск</Button>
+									</DrawerActionTrigger>
+								</DrawerFooter>
+								<DrawerCloseTrigger />
+							</DrawerContent>
+						</DrawerRoot>
+
 						<Button>
 							<Link to="/users">Список пользователей</Link>
 						</Button>
