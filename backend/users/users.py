@@ -11,10 +11,12 @@
 # }
 
 from flask import jsonify, request, make_response
+from datetime import datetime
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
 import requests
+import re
 
 
 class UsersService:
@@ -24,7 +26,7 @@ class UsersService:
     def __init__(self, app: any, mongo: any) -> None:
         self.__app = app
         self.__mongo = mongo
-        self.add_default_user()
+        #self.add_default_user()
         self.__registerRoutes()
         
 
@@ -46,6 +48,68 @@ class UsersService:
         def auth():     
             response_data, status, cookie = self.authorization(request.get_json())
             return self.generate_auth_response(response_data, status, cookie)
+        
+        @self.__app.route("/users/search", methods=["POST"])
+        def search_users():
+            request_data = request.get_json()
+            search_fields = request_data.get("search_fields", [])
+            search_terms = request_data.get("search_terms", [])
+            
+            created_at = request_data.get("created_at", {})
+            visited_at = request_data.get("visited_at", {})
+
+            
+            created_at_date = created_at.get("date", "")
+            visited_at_date = visited_at.get("date", "")
+
+            created_at_date = datetime.strptime(created_at_date, "%Y-%m-%d %H:%M:%S") if created_at_date != "" else None
+            visited_at_date = datetime.strptime(visited_at_date, "%Y-%m-%d %H:%M:%S") if visited_at_date != "" else None
+
+            created_at_after = created_at.get("after", False)
+            visited_at_after = visited_at.get("after", False)
+
+            if len(search_fields) != len(search_terms):
+                return jsonify({"error": "The number of search fields must match the number of search terms"}), 400
+
+            collection = self.__mongo[self.db_name][self.collection_name]
+
+            query = {"$and": []}
+            for search_field, search_term in zip(search_fields, search_terms):
+                search_term = re.escape(search_term)
+                query["$and"].append({search_field: re.compile(search_term, re.IGNORECASE)})
+
+            cursor = collection.find(query)
+            combined = list(cursor) if cursor is not None else None
+
+            ret = []
+            for user in combined:
+                user["_id"] = str(user["_id"])
+                activities = []
+                for act in user["activities"]:
+                    activities.append(str(act))
+                user["activities"] = activities
+                f1, f2 = False, False
+                if created_at_date is not None:
+                    date = datetime.strptime(user["created_at"], "%Y-%m-%d %H:%M:%S")
+                    if created_at_after and created_at_date <= date:
+                        f1 = True
+                    elif not created_at_after and created_at_date > date:
+                        f1 = True
+                else:
+                    f1 = True
+
+                if visited_at_date is not None:
+                    date = datetime.strptime(user["created_at"], "%Y-%m-%d %H:%M:%S")
+                    if visited_at_after and visited_at_date <= date:
+                        f2 = True
+                    elif not visited_at_after and visited_at_date > date:
+                        f2 = True
+                else:
+                    f2 = True
+
+                if f1 and f2:
+                    ret.append(user)
+            return jsonify(ret), 200
     
     def add_default_user(self):
         login = "root"
