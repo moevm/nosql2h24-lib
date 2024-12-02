@@ -93,6 +93,63 @@ export const Home = () => {
 
 	function handleAuthSearch() {}
 
+	async function exportF() {
+		try {
+			const res = await fetch("http://localhost:8081/export");
+			const data = await res.json(); // Получаем данные из ответа
+
+			// Преобразуем данные в строку JSON
+			const jsonString = JSON.stringify(data, null, 2);
+
+			// Создаём Blob из строки
+			const blob = new Blob([jsonString], { type: "application/json" });
+
+			// Создаём временную ссылку для скачивания файла
+			const url = URL.createObjectURL(blob);
+
+			// Создаём элемент <a> и имитируем клик для скачивания
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "output.json"; // Название файла
+			document.body.appendChild(a);
+			a.click();
+
+			// Очищаем ресурсы
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		} catch (error) {
+			console.error("Ошибка при запросе:", error);
+		}
+	}
+
+	function importF() {
+		const fileInput = document.getElementById("fileinput") as HTMLInputElement; // Получаем элемент <input type="file">
+
+		// Проверяем, выбран ли файл
+		if (fileInput?.files?.length === 0) {
+			console.error("Файл не выбран");
+			return;
+		}
+
+		// @ts-ignore
+		const file = fileInput.files[0]; // Получаем первый выбранный файл
+		console.log(file);
+		// Создаём объект FormData и добавляем файл
+		const formData = new FormData();
+		formData.append("file", file);
+
+		// Отправляем файл на сервер
+		fetch("http://localhost:8081/import", {
+			method: "POST",
+			body: formData,
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		}).catch((error) => {
+			console.error("Ошибка при загрузке файла:", error);
+		});
+	}
+
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -240,11 +297,11 @@ export const Home = () => {
 						<IconButton>
 							<FaHome />
 						</IconButton>
-						<IconButton>
+						<IconButton onClick={exportF}>
 							<FaDownload />
 						</IconButton>
 						<IconButton>
-							<CiExport />
+							<Input type="file" id="fileinput" onChange={importF} />
 						</IconButton>
 						<IconButton>
 							<TbLogs />
@@ -328,7 +385,7 @@ export const Home = () => {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{authors?.map((el: any) => {
+						{authors?.map?.((el: any) => {
 							return (
 								<Table.Row key={el}>
 									<Table.Cell>
