@@ -37,7 +37,41 @@ export const Users = () => {
 		visited_at: "",
 		visited_before: false,
 	});
-	function handleUserSearch() {}
+	function handleUserSearch() {
+		let a = Object.fromEntries(
+			Object.entries({
+				login: usersForm.login,
+				name: usersForm.name,
+				surname: usersForm.surname,
+			}).filter((el) => !!el[1])
+		);
+		let b: any = {};
+		if (usersForm.created_at) {
+			b["created_at"] = {
+				date: usersForm.created_at,
+				after: !usersForm.created_before,
+			};
+		}
+		if (usersForm.visited_at) {
+			b["visited_at"] = {
+				date: usersForm.visited_at,
+				after: !usersForm.visited_before,
+			};
+		}
+		fetch("http://localhost:8081/users/search", {
+			method: "POST",
+			body: JSON.stringify({
+				search_fields: Object.keys(a),
+				search_terms: Object.values(a),
+				...b,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((res) => res.json())
+			.then((res) => setUsers(res));
+	}
 
 	return (
 		<Box px={10} pt={5}>

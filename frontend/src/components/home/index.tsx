@@ -18,7 +18,6 @@ import {
 	createListCollection,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { CiExport } from "react-icons/ci";
 import { FaDownload, FaHome } from "react-icons/fa";
 import { TbLogs } from "react-icons/tb";
 import { getCookie } from "../../utils";
@@ -65,6 +64,7 @@ export const Home = () => {
 
 	const geners = createListCollection({
 		items: [
+			{ label: "Не выбрано", value: "" },
 			{ label: "Фантастика", value: "Фантастика" },
 			{ label: "Ужасы", value: "Ужасы" },
 			{ label: "Гарем", value: "Гарем" },
@@ -89,28 +89,52 @@ export const Home = () => {
 		biography: "",
 		books: "",
 	});
-	function handleBookSearch() {}
 
-	function handleAuthSearch() {}
+	function handleBookSearch() {
+		let a = Object.fromEntries(Object.entries(bookForm).filter((el) => !!el[1]));
+		fetch("http://localhost:8081/books/search", {
+			method: "POST",
+			body: JSON.stringify({
+				search_fields: Object.keys(a),
+				search_terms: Object.values(a),
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((res) => res.json())
+			.then((res) => setBooks(res));
+	}
+
+	function handleAuthSearch() {
+		let a = Object.fromEntries(Object.entries(authorForm).filter((el) => !!el[1]));
+		fetch("http://localhost:8081/authors/search", {
+			method: "POST",
+			body: JSON.stringify({
+				search_fields: Object.keys(a),
+				search_terms: Object.values(a),
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((res) => res.json())
+			.then((res) => setAuthors(res));
+	}
 
 	async function exportF() {
 		try {
 			const res = await fetch("http://localhost:8081/export");
-			const data = await res.json(); // Получаем данные из ответа
-
-			// Преобразуем данные в строку JSON
+			const data = await res.json();
 			const jsonString = JSON.stringify(data, null, 2);
 
-			// Создаём Blob из строки
 			const blob = new Blob([jsonString], { type: "application/json" });
 
-			// Создаём временную ссылку для скачивания файла
 			const url = URL.createObjectURL(blob);
 
-			// Создаём элемент <a> и имитируем клик для скачивания
 			const a = document.createElement("a");
 			a.href = url;
-			a.download = "output.json"; // Название файла
+			a.download = "output.json";
 			document.body.appendChild(a);
 			a.click();
 
