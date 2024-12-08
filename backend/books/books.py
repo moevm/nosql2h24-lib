@@ -172,10 +172,11 @@ class BooksService:
 
         @self.__app.route('/import', methods=['POST'])
         def import_data():
-            if request.files.get('file').read():
+            if 'file' not in request.files:
                 return jsonify({"error": "Нет файла для импорта"}), 400
 
-            file = request.files.get('file').read()
+            file = request.files['file']
+            
             if file.filename == '':
                 return jsonify({"error": "Нет выбранного файла"}), 400
 
@@ -188,7 +189,6 @@ class BooksService:
                 collection = self.__mongo[self.db_name][collection_name]
                 collection.drop()
 
-                collection = self.__mongo[self.db_name][collection_name]
                 if documents:
                     collection.insert_many(documents)
 
