@@ -33,17 +33,20 @@ class BooksService:
         self.collection_name = "books"
         self.db_name = "library"
 
+    def getBooks(self):
+        collection = self.__mongo[self.db_name][self.collection_name]
+        books_cursor = collection.find()
+        books = list(books_cursor)
+
+        for book in books:
+            book["_id"] = str(book["_id"])
+
+        return jsonify(books), 200
+
     def __registerRoutes(self) -> None:
         @self.__app.route("/books", methods=["GET"])
         def get_books():
-            collection = self.__mongo[self.db_name][self.collection_name]
-            books_cursor = collection.find()
-            books = list(books_cursor)
-
-            for book in books:
-                book["_id"] = str(book["_id"])
-
-            return jsonify(books), 200
+            return self.getBooks()
         
         @self.__app.route("/books", methods=["POST"])
         def insert_book():
@@ -107,6 +110,16 @@ class BooksService:
             request_data = request.get_json()
             search_fields = request_data.get("search_fields", [])
             search_terms = request_data.get("search_terms", [])
+
+            if request_data is None or len(search_fields) == 0 or len(search_terms) == 0:
+                collection = self.__mongo[self.db_name][self.collection_name]
+                books_cursor = collection.find()
+                books = list(books_cursor)
+
+                for book in books:
+                    book["_id"] = str(book["_id"])
+
+                return jsonify(books), 200
 
             if len(search_fields) != len(search_terms):
                 return jsonify({"error": "The number of search fields must match the number of search terms"}), 400

@@ -51,6 +51,16 @@ class AuthorsService:
             search_fields = request_data.get("search_fields", [])
             search_terms = request_data.get("search_terms", [])
 
+            if request_data is None or len(search_fields) == 0 or len(search_terms) == 0:
+                collection = self.__mongo[self.db_name][self.collection_name]
+                authors_cursor = collection.find()
+                authors = list(authors_cursor)
+
+                for author in authors:
+                    author["_id"] = str(author["_id"])
+                
+                return jsonify(authors), 200
+
             if len(search_fields) != len(search_terms):
                 return jsonify({"error": "The number of search fields must match the number of search terms"}), 400
 

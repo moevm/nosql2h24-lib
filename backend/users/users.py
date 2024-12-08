@@ -54,6 +54,20 @@ class UsersService:
             request_data = request.get_json()
             search_fields = request_data.get("search_fields", [])
             search_terms = request_data.get("search_terms", [])
+
+            if len(search_fields) == 0 or len(search_terms) == 0:
+                collection = self.__mongo[self.db_name][self.collection_name]
+                users_cursor = collection.find()
+                users = list(users_cursor)
+
+                for user in users:
+                    user["_id"] = str(user["_id"])
+                    activities = []
+                    for activity in user["activities"]:
+                        activities.append(str(activity))
+                    user["activities"] = activities
+
+                return jsonify(users), 200
             
             created_at = request_data.get("created_at", {})
             visited_at = request_data.get("visited_at", {})
