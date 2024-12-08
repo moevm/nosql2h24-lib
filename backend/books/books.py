@@ -187,8 +187,9 @@ class BooksService:
 
             for collection_name, documents in data.items():
                 collection = self.__mongo[self.db_name][collection_name]
+                for document in documents:
+                    document['_id'] = ObjectId(document['_id'])
                 collection.drop()
-
                 if documents:
                     collection.insert_many(documents)
 
