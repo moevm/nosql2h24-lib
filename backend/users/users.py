@@ -26,7 +26,6 @@ class UsersService:
     def __init__(self, app: any, mongo: any) -> None:
         self.__app = app
         self.__mongo = mongo
-        #self.add_default_user()
         self.__registerRoutes()
         
 
@@ -55,7 +54,11 @@ class UsersService:
             search_fields = request_data.get("search_fields", [])
             search_terms = request_data.get("search_terms", [])
 
-            if len(search_fields) == 0 or len(search_terms) == 0:
+            created_at = request_data.get("created_at", {})
+            visited_at = request_data.get("visited_at", {})
+
+
+            if (len(search_fields) == 0 or len(search_terms) == 0) and created_at == {} and visited_at == {}:
                 collection = self.__mongo[self.db_name][self.collection_name]
                 users_cursor = collection.find()
                 users = list(users_cursor)
@@ -69,15 +72,11 @@ class UsersService:
 
                 return jsonify(users), 200
             
-            created_at = request_data.get("created_at", {})
-            visited_at = request_data.get("visited_at", {})
-
-            
             created_at_date = created_at.get("date", "")
             visited_at_date = visited_at.get("date", "")
 
-            created_at_date = datetime.strptime(created_at_date, "%Y-%m-%d %H:%M:%S") if created_at_date != "" else None
-            visited_at_date = datetime.strptime(visited_at_date, "%Y-%m-%d %H:%M:%S") if visited_at_date != "" else None
+            created_at_date = datetime.strptime(created_at_date, "%Y-%m-%d") if created_at_date != "" else None
+            visited_at_date = datetime.strptime(visited_at_date, "%Y-%m-%d") if visited_at_date != "" else None
 
             created_at_after = created_at.get("after", False)
             visited_at_after = visited_at.get("after", False)
@@ -91,8 +90,12 @@ class UsersService:
             for search_field, search_term in zip(search_fields, search_terms):
                 search_term = re.escape(search_term)
                 query["$and"].append({search_field: re.compile(search_term, re.IGNORECASE)})
+            
+            if len(query["$and"]) != 0:
+                cursor = collection.find(query)
+            else: 
+                cursor = collection.find()
 
-            cursor = collection.find(query)
             combined = list(cursor) if cursor is not None else None
 
             ret = []
