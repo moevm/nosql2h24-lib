@@ -124,26 +124,6 @@ class UsersService:
                 if f1 and f2:
                     ret.append(user)
             return jsonify(ret), 200
-    
-    def add_default_user(self):
-        login = "root"
-        password = "123"
-        collection = self.__mongo[self.db_name][self.collection_name]
-        existing_user = collection.find_one({"login": login})
-        if existing_user:
-            return
-
-        new_user = { 
-            "login": login, 
-            "hash_password": password,
-            "activities": [],
-            "visited_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),    
-            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "name": "Vladimir",
-            "surname": "Pushkin"   
-        }
-        
-        collection.insert_one(new_user)
 
     def generate_auth_response(self, response_data, status, cookie):
         response = make_response(response_data, status)
