@@ -5,13 +5,14 @@ import { TbLogs } from "react-icons/tb";
 import { DataListItem, DataListRoot } from "../ui/data-list";
 import { useState, useEffect } from "react";
 import { getCookie } from "../../utils";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export const User = () => {
 	const [user, setUser] = useState<any>();
+	const location = useLocation();
 
 	useEffect(() => {
-		fetch("http://localhost:8081/users/" + getCookie("user_id"))
+		fetch("http://localhost:8081/users/" + location.pathname.split("/").at(-1))
 			.then((r) => r.json())
 			.then(setUser);
 	}, []);
