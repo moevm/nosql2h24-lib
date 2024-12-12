@@ -129,6 +129,18 @@ class BooksService:
 
             query = {"$and": []}
             for search_field, search_term in zip(search_fields, search_terms):
+                if search_field == "num_pages_from":
+                    query["$and"].append({"num_pages": {"$gte": search_term}})
+
+                if search_field == "num_pages_to":
+                    query["$and"].append({"num_pages": {"$lte": search_term}})
+
+                if search_field == "release_year_to":
+                    query["$and"].append({"release_year": {"$gte": search_term}})
+
+                if search_field == "release_year_from":
+                    query["$and"].append({"release_year": {"$lte": search_term}})
+
                 search_term = re.escape(search_term)
                 query["$and"].append({search_field: re.compile(search_term, re.IGNORECASE)})
 
