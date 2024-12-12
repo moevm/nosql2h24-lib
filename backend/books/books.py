@@ -146,10 +146,11 @@ class BooksService:
                 book["_id"] = str(book["_id"])
 
 
-            num_pages_from = 0
-            num_pages_to = 0
-            release_year_from = 0
-            release_year_to = 0
+            num_pages_from = -1000000000
+            num_pages_to = 100000000000
+            release_year_from = -1000000000
+            release_year_to = 100000000000
+
             for search_field, search_term in zip(search_fields, search_terms):
                 if search_field == 'num_pages_from':
                     num_pages_from = int(search_term)
@@ -161,26 +162,9 @@ class BooksService:
                     release_year_to = int(search_term)
 
             res = []
-            if num_pages_from > 0:
-                for book in combined_books:
-                    if int(book["num_pages"]) >= int(num_pages_from):
+            for book in combined_books:
+                if int(book["num_pages"]) >= int(num_pages_from) and int(book["num_pages"]) <= int(num_pages_to) and int(book["release_year"]) >= int(release_year_from) and int(book["release_year"]) <= int(release_year_to):
                         res.append(book)
-            
-            if num_pages_to > 0:
-                for book in combined_books:
-                    if int(book["num_pages"]) <= int(num_pages_to):
-                        res.append(book)
-
-            if release_year_from > 0:
-                for book in combined_books:
-                    if int(book["release_year"]) >= int(release_year_from):
-                        res.append(book)
-            
-            if release_year_to > 0:
-                for book in combined_books:
-                    if int(book["release_year"]) <= int(release_year_to):
-                        res.append(book)
-
 
             return jsonify(res), 200
                 
