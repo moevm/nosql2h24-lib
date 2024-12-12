@@ -19,7 +19,6 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaDownload, FaHome } from "react-icons/fa";
-import { TbLogs } from "react-icons/tb";
 import { getCookie } from "../../utils";
 import { Link } from "react-router-dom";
 import {
@@ -38,6 +37,14 @@ import { Field } from "../ui/field";
 import { SelectLabel } from "../ui/select";
 
 export const Home = () => {
+	const [genres, setGenres] = useState<any>();
+
+	useEffect(() => {
+		fetch("http://localhost:8081/books/genres")
+			.then((r) => r.json())
+			.then(setGenres);
+	}, []);
+
 	const [user, setUser] = useState<any>();
 
 	useEffect(() => {
@@ -65,21 +72,21 @@ export const Home = () => {
 	const geners = createListCollection({
 		items: [
 			{ label: "Не выбрано", value: "" },
-			{ label: "Фантастика", value: "Фантастика" },
-			{ label: "Ужасы", value: "Ужасы" },
-			{ label: "Гарем", value: "Гарем" },
-			{ label: "Иссекай", value: "Иссекай" },
-			{ label: "Юри", value: "Юри" },
-			{ label: "Сёдзе-ай", value: "Сёдзе-ай" },
+			...(genres || []).map((el: any) => ({
+				label: el,
+				value: el,
+			})),
 		],
 	});
 
 	const [bookForm, setBookForm] = useState({
 		name: "",
-		release_year: "",
+		release_year_from: "",
+		release_year_to: "",
 		description: "",
 		author: "",
-		num_pages: "",
+		num_pages_from: "",
+		num_pages_to: "",
 		genre: "",
 		link: "",
 	});
@@ -92,6 +99,9 @@ export const Home = () => {
 
 	function handleBookSearch() {
 		let a = Object.fromEntries(Object.entries(bookForm).filter((el) => !!el[1]));
+		if (Object.keys(a).length == 0) {
+			return;
+		}
 		fetch("http://localhost:8081/books/search", {
 			method: "POST",
 			body: JSON.stringify({
@@ -269,15 +279,32 @@ export const Home = () => {
 												</Field>
 												<Field label="Кл-во страниц">
 													<Input
-														value={bookForm.num_pages}
-														onChange={(e) => setBookForm((l) => ({ ...l, num_pages: e.target.value }))}
+														placeholder="от"
+														type="number"
+														value={bookForm.num_pages_from}
+														onChange={(e) => setBookForm((l) => ({ ...l, num_pages_from: e.target.value }))}
+													/>
+													<Input
+														placeholder="до"
+														type="number"
+														value={bookForm.num_pages_to}
+														onChange={(e) => setBookForm((l) => ({ ...l, num_pages_to: e.target.value }))}
 													/>
 												</Field>
 												<Field label="Год">
 													<Input
+														placeholder="от"
 														type="number"
-														value={bookForm.release_year}
-														onChange={(e) => setBookForm((l) => ({ ...l, release_year: e.target.value }))}
+														value={bookForm.release_year_from}
+														onChange={(e) =>
+															setBookForm((l) => ({ ...l, release_year_from: e.target.value }))
+														}
+													/>
+													<Input
+														placeholder="до"
+														type="number"
+														value={bookForm.release_year_to}
+														onChange={(e) => setBookForm((l) => ({ ...l, release_year_to: e.target.value }))}
 													/>
 												</Field>
 											</Stack>
@@ -327,9 +354,6 @@ export const Home = () => {
 						<IconButton>
 							<Input type="file" id="fileinput" onChange={importF} />
 						</IconButton>
-						<IconButton>
-							<TbLogs />
-						</IconButton>
 					</Group>
 				</Flex>
 
@@ -374,9 +398,9 @@ export const Home = () => {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{books?.map((el: any) => {
+						{books?.map((el: any, i: any) => {
 							return (
-								<Table.Row key={el}>
+								<Table.Row key={i}>
 									<Table.Cell>
 										<Link className="link" to={`/book/${el?._id}`}>
 											{el?._id || "-"}
@@ -409,9 +433,9 @@ export const Home = () => {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{authors?.map?.((el: any) => {
+						{authors?.map?.((el: any, i: any) => {
 							return (
-								<Table.Row key={el}>
+								<Table.Row key={i}>
 									<Table.Cell>
 										<Link className="link" to={`/author/${el?.name}`}>
 											{el?._id || "-"}

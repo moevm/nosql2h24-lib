@@ -24,30 +24,17 @@ export const User = () => {
 			.then((r) => r.json())
 			.then(setavtiv);
 	}, []);
-	console.log(avtiv);
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
 				<Flex gap="40px">
-					<Group attached>
-						<Button>Фильтр</Button>
-						<Button>Начать поиск</Button>
-					</Group>
+					<Group attached></Group>
 					<Group>
 						<Link to="/">
 							<IconButton>
 								<FaHome />
 							</IconButton>
 						</Link>
-						<IconButton>
-							<FaDownload />
-						</IconButton>
-						<IconButton>
-							<CiExport />
-						</IconButton>
-						<IconButton>
-							<TbLogs />
-						</IconButton>
 					</Group>
 				</Flex>
 
@@ -76,6 +63,7 @@ export const User = () => {
 						<Table.Row>
 							<Table.ColumnHeader>Название</Table.ColumnHeader>
 							<Table.ColumnHeader>Автор</Table.ColumnHeader>
+							<Table.ColumnHeader>Дата создания</Table.ColumnHeader>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
@@ -84,6 +72,7 @@ export const User = () => {
 								<Table.Row>
 									<Table.Cell>{el.description}</Table.Cell>
 									<Table.Cell>{el.user_id}</Table.Cell>
+									<Table.Cell>{el.created_at}</Table.Cell>
 								</Table.Row>
 							);
 						})}

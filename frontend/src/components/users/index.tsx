@@ -185,6 +185,7 @@ export const Users = () => {
 							<Table.ColumnHeader>Логин</Table.ColumnHeader>
 							<Table.ColumnHeader>Дата регистрации</Table.ColumnHeader>
 							<Table.ColumnHeader>Имя</Table.ColumnHeader>
+							<Table.ColumnHeader>Фамилия</Table.ColumnHeader>
 							<Table.ColumnHeader>Последнее посещение</Table.ColumnHeader>
 						</Table.Row>
 					</Table.Header>
@@ -200,6 +201,7 @@ export const Users = () => {
 									</Table.Cell>
 									<Table.Cell>{el?.created_at}</Table.Cell>
 									<Table.Cell>{el?.name}</Table.Cell>
+									<Table.Cell>{el?.surname}</Table.Cell>
 									<Table.Cell>{el?.visited_at}</Table.Cell>
 								</Table.Row>
 							);

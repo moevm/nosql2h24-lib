@@ -129,7 +129,7 @@ class BooksService:
 
             query = {"$and": []}
             for search_field, search_term in zip(search_fields, search_terms):
-                if search_field in ["num_pages_from", "num_pages_to"]:
+                if search_field in ["num_pages_from", "num_pages_to", "release_year_from", "release_year_to"]:
                     continue
                 
                 search_term = re.escape(search_term)
@@ -146,10 +146,11 @@ class BooksService:
                 book["_id"] = str(book["_id"])
 
 
-            num_pages_from = 0
-            num_pages_to = 0
-            release_year_from = 0
-            release_year_to = 0
+            num_pages_from = 1
+            num_pages_to = 100000000000
+            release_year_from = 1
+            release_year_to = 100000000000
+
             for search_field, search_term in zip(search_fields, search_terms):
                 if search_field == 'num_pages_from':
                     num_pages_from = int(search_term)
@@ -160,42 +161,20 @@ class BooksService:
                 elif search_field == 'release_year_to':
                     release_year_to = int(search_term)
 
-            res1 = []
-            if num_pages_from > 0:
-                for book in combined_books:
-                    if int(book.get("num_pages", 0) or 0) >= int(num_pages_from):
-                        res1.append(book)
+            mres = []
+            res = []
             
-            res2 = []
-            if num_pages_to > 0:
-                for book in combined_books:
-                    if int(book.get("num_pages", 0) or 0) <= int(num_pages_to):
-                        res2.append(book)
-
-            res3 = []
-            if release_year_from > 0:
-                for book in combined_books:
-                    if int(book.get('release_year', 0) or 0) >= int(release_year_from):
-                        res3.append(book)
-            
-            res4 = []
-            if release_year_to > 0:
-                for book in combined_books:
-                    if int(book.get('release_year', 0) or 0) <= int(release_year_to):
-                        res4.append(book)
-
-            results = [res for res in [res1, res2, res3, res4] if res]
-
-            if results:
-                intersection = set(tuple(sorted(book.items())) for book in results[0])
-                for res in results[1:]:
-                    intersection &= set(tuple(sorted(book.items())) for book in res)
-
-                intersection = [dict(item) for item in intersection]
-            else:
-                intersection = []
-
-            return jsonify(intersection), 200
+            for book in combined_books:
+                if not int(book.get("num_pages", 0)):
+                    continue
+                if int(book.get("num_pages", num_pages_from)) >= int(num_pages_from) and int(book.get("num_pages", num_pages_to)) <= int(num_pages_to):
+                    mres.append(book)
+            for book in mres:
+                if (not book.get("release_year", 0)):
+                    continue
+                if int(book.get("release_year", release_year_from)) >= int(release_year_from) and int(book.get("release_year", release_year_to)) <= int(release_year_to):
+                    res.append(book)
+            return jsonify(res), 200
                 
 
         @self.__app.route('/export', methods=['GET'])

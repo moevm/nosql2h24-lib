@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Flex, Group, Heading, IconButton, Table, Text } from "@chakra-ui/react";
+import { Box, Flex, Group, Heading, IconButton, Table, Text } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { CiExport } from "react-icons/ci";
-import { FaDownload, FaHome } from "react-icons/fa";
-import { TbLogs } from "react-icons/tb";
 import { useLocation } from "react-router";
 import { getCookie } from "../../utils";
 import { Link } from "react-router-dom";
+import { FaHome } from "react-icons/fa";
 export const Author = () => {
 	const [author, setAuthor] = useState<any>();
 	const [books, setBooks] = useState<any>();
@@ -16,13 +14,15 @@ export const Author = () => {
 		fetch("http://localhost:8081/authors/" + l.pathname.split("/").at(-1))
 			.then((r) => r.json())
 			.then((r) => {
-				Promise.all(
-					r?.books?.map((el: any) => {
-						return fetch("http://localhost:8081/books/" + el);
-					})
-				)
-					.then((el) => Promise.all(el.map((i) => i.json())))
-					.then(setBooks);
+				if (r?.books) {
+					Promise.all(
+						r?.books?.map((el: any) => {
+							return fetch("http://localhost:8081/books/" + el);
+						})
+					)
+						.then((el) => Promise.all(el.map((i) => i.json())))
+						.then(setBooks);
+				}
 				return r;
 			})
 			.then(setAuthor);
@@ -35,32 +35,19 @@ export const Author = () => {
 			.then((r) => r.json())
 			.then(setUser);
 	}, []);
-
+	console.log(author);
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between" mb={10}>
 				<Flex gap="40px" alignItems="center">
 					<Text>{author?.name}</Text>
-					<Group attached>
-						<Button>Фильтр</Button>
-						<Button>Начать поиск</Button>
-					</Group>
+					<Group attached></Group>
 					<Group>
 						<Link to="/">
 							<IconButton>
 								<FaHome />
 							</IconButton>
 						</Link>
-
-						<IconButton>
-							<FaDownload />
-						</IconButton>
-						<IconButton>
-							<CiExport />
-						</IconButton>
-						<IconButton>
-							<TbLogs />
-						</IconButton>
 					</Group>
 				</Flex>
 
@@ -85,9 +72,9 @@ export const Author = () => {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{books?.map((el: any) => {
+						{books?.map((el: any, i: any) => {
 							return (
-								<Table.Row key={el}>
+								<Table.Row key={i}>
 									<Table.Cell>{el?.name || "-"}</Table.Cell>
 									<Table.Cell>{el?.author || "-"}</Table.Cell>
 									<Table.Cell>{el?.genre || "-"}</Table.Cell>

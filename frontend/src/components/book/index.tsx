@@ -57,25 +57,13 @@ export const Book = () => {
 			<Flex justifyContent="space-between">
 				<Flex gap="40px" alignItems="center">
 					<Text>{book?.name}</Text>
-					<Group attached>
-						<Button>Фильтр</Button>
-						<Button>Начать поиск</Button>
-					</Group>
+					<Group attached></Group>
 					<Group>
 						<Link to="/">
 							<IconButton>
 								<FaHome />
 							</IconButton>
 						</Link>
-						<IconButton>
-							<FaDownload />
-						</IconButton>
-						<IconButton>
-							<CiExport />
-						</IconButton>
-						<IconButton>
-							<TbLogs />
-						</IconButton>
 					</Group>
 				</Flex>
 
