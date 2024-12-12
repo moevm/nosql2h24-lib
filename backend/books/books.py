@@ -146,11 +146,10 @@ class BooksService:
                 book["_id"] = str(book["_id"])
 
 
-            num_pages_from = -1000000000
-            num_pages_to = 100000000000
-            release_year_from = -1000000000
-            release_year_to = 100000000000
-
+            num_pages_from = 0
+            num_pages_to = 0
+            release_year_from = 0
+            release_year_to = 0
             for search_field, search_term in zip(search_fields, search_terms):
                 if search_field == 'num_pages_from':
                     num_pages_from = int(search_term)
@@ -161,12 +160,33 @@ class BooksService:
                 elif search_field == 'release_year_to':
                     release_year_to = int(search_term)
 
-            res = []
-            for book in combined_books:
-                if int(book["num_pages"]) >= int(num_pages_from) and int(book["num_pages"]) <= int(num_pages_to) and int(book["release_year"]) >= int(release_year_from) and int(book["release_year"]) <= int(release_year_to):
-                        res.append(book)
+            res1 = []
+            if num_pages_from > 0:
+                for book in combined_books:
+                    if int(book.get("num_pages", 0) or 0) >= int(num_pages_from):
+                        res1.append(book)
+            
+            res2 = []
+            if num_pages_to > 0:
+                for book in combined_books:
+                    if int(book.get("num_pages", 0) or 0) <= int(num_pages_to):
+                        res2.append(book)
 
-            return jsonify(res), 200
+            res3 = []
+            if release_year_from > 0:
+                for book in combined_books:
+                    if int(book.get('release_year', 0) or 0) >= int(release_year_from):
+                        res3.append(book)
+            
+            res4 = []
+            if release_year_to > 0:
+                for book in combined_books:
+                    if int(book.get('release_year', 0) or 0) <= int(release_year_to):
+                        res4.append(book)
+
+            intersection = list(set(res1) & set(res2) & set(res3) & set(res4))
+
+            return jsonify(intersection), 200
                 
 
         @self.__app.route('/export', methods=['GET'])
