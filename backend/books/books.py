@@ -125,32 +125,49 @@ class BooksService:
                 return jsonify({"error": "The number of search fields must match the number of search terms"}), 400
 
             collection = self.__mongo[self.db_name][self.collection_name]
-            combined_books = {}
+            combined_books = []
 
             query = {"$and": []}
             for search_field, search_term in zip(search_fields, search_terms):
-                if search_field == "num_pages_from":
-                    query["$and"].append({"num_pages": {"$gte": search_term}})
-
-                if search_field == "num_pages_to":
-                    query["$and"].append({"num_pages": {"$lte": search_term}})
-
-                if search_field == "release_year_to":
-                    query["$and"].append({"release_year": {"$gte": search_term}})
-
-                if search_field == "release_year_from":
-                    query["$and"].append({"release_year": {"$lte": search_term}})
-
+                if search_field in ["num_pages_from", "num_pages_to"]:
+                    continue
+                
                 search_term = re.escape(search_term)
                 query["$and"].append({search_field: re.compile(search_term, re.IGNORECASE)})
-
-            books_cursor = collection.find(query)
-            combined_books = list(books_cursor)
+            
+            if len(query["$and"]) == 0:
+                books_cursor = collection.find()
+                combined_books = list(books_cursor)
+            else:
+                books_cursor = collection.find(query)
+                combined_books = list(books_cursor)
+            
             for book in combined_books:
                 book["_id"] = str(book["_id"])
+
+
+            num_pages_from = 0
+            num_pages_to = 0
+            for search_field, search_term in zip(search_fields, search_terms):
+                if search_field == 'num_pages_from':
+                    num_pages_from = int(search_term)
+                elif search_field == 'num_pages_to':
+                    num_pages_to = int(search_term)
+
+            res = []
+            if num_pages_from > 0:
+                for book in combined_books:
+                    if int(book["num_pages"]) >= int(num_pages_from):
+                        res.append(book)
             
-            return jsonify(combined_books), 200
-        
+            if num_pages_to > 0:
+                for book in combined_books:
+                    if int(book["num_pages"]) <= int(num_pages_to):
+                        res.append(book)
+
+            return jsonify(res), 200
+                
+
         @self.__app.route('/export', methods=['GET'])
         def export_data():
             session = requests.Session()
@@ -226,9 +243,9 @@ class BooksService:
             "author": request_data["author"],
             "genre": request_data["genre"],
             "publishing": request_data.get("publishing"),
-            "release_year": request_data.get("release_year"),
+            "release_year": int(request_data.get("release_year"), 0),
             "uploaded_by": request_data.get("uploaded_by"),
-            "num_pages": request_data.get("num_pages"),
+            "num_pages": int(request_data.get("num_pages", 0)),
             "link": request_data.get("link"),
             "upload_date": request_data.get("upload_date"),
             "status": request_data.get("status"),
