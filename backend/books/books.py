@@ -184,7 +184,16 @@ class BooksService:
                     if int(book.get('release_year', 0) or 0) <= int(release_year_to):
                         res4.append(book)
 
-            intersection = list(set(res1) & set(res2) & set(res3) & set(res4))
+            results = [res for res in [res1, res2, res3, res4] if res]
+
+            if results:
+                intersection = set(tuple(sorted(book.items())) for book in results[0])
+                for res in results[1:]:
+                    intersection &= set(tuple(sorted(book.items())) for book in res)
+
+                intersection = [dict(item) for item in intersection]
+            else:
+                intersection = []
 
             return jsonify(intersection), 200
                 
