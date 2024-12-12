@@ -194,7 +194,12 @@ class BooksService:
                     collection.insert_many(documents)
 
             return jsonify({"message": "Импорт завершен!"}), 200
-
+        
+        @self.__app.route('/books/genres', methods=['GET'])
+        def get_all_genres():
+            collection = self.__mongo[self.db_name][self.collection_name]
+            genres = collection.distinct("genre")
+            return jsonify(genres), 200 
 
     def insertBook(self, request_data):
         if not request_data or "name" not in request_data or "genre" not in request_data:
