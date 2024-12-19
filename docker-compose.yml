@@ -13,12 +13,12 @@ services:
         condition: service_healthy
     networks:
       - database
-  # frontend:
-  #   build:
-  #     dockerfile: Dockerfile
-  #     context: frontend
-  #   ports:
-  #     - "127.0.0.1:5173:5173"
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: frontend
+    ports:
+      - "127.0.0.1:5173:5173"
   db:
     container_name: database
     hostname: mongodb
