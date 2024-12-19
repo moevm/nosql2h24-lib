@@ -1,9 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Flex, Group, Heading, IconButton, Separator, Text } from "@chakra-ui/react";
-import { CiExport } from "react-icons/ci";
-import { FaDownload, FaHome } from "react-icons/fa";
-import { TbLogs } from "react-icons/tb";
-import { DataListItem, DataListRoot } from "../ui/data-list";
+import {
+	Box,
+	Button,
+	DataListItem,
+	DataListRoot,
+	Flex,
+	Group,
+	Heading,
+	IconButton,
+	Separator,
+	Text,
+} from "@chakra-ui/react";
+import { FaHome } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { getCookie } from "../../utils";
@@ -79,6 +87,7 @@ export const Book = () => {
 							value ? (
 								<DataListItem
 									key={label}
+									// @ts-ignore
 									label={mapper[label as keyof typeof mapper]}
 									value={value as string}
 								/>

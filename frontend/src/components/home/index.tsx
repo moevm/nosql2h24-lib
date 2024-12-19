@@ -16,6 +16,7 @@ import {
 	SelectTrigger,
 	SelectValueText,
 	createListCollection,
+	Toaster,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaDownload, FaHome } from "react-icons/fa";
@@ -35,6 +36,7 @@ import {
 } from "../ui/drawer";
 import { Field } from "../ui/field";
 import { SelectLabel } from "../ui/select";
+import { toaster } from "../ui/toaster";
 
 export const Home = () => {
 	const [genres, setGenres] = useState<any>();
@@ -156,6 +158,7 @@ export const Home = () => {
 		}
 	}
 
+	const [file, setFile] = useState<any>();
 	function importF() {
 		const fileInput = document.getElementById("fileinput") as HTMLInputElement; // Получаем элемент <input type="file">
 
@@ -166,24 +169,63 @@ export const Home = () => {
 		}
 
 		// @ts-ignore
-		const file = fileInput.files[0]; // Получаем первый выбранный файл
-		console.log(file);
+		const filen = fileInput.files[0]; // Получаем первый выбранный файл
+		setFile(filen);
 		// Создаём объект FormData и добавляем файл
 		const formData = new FormData();
-		formData.append("file", file);
+		formData.append("file", file, "output.json");
+		console.log(formData.getAll("file"));
 
 		// Отправляем файл на сервер
 		fetch("http://localhost:8081/import", {
 			method: "POST",
 			body: formData,
-			headers: {
-				"Content-Type": "multipart/form-data",
-			},
-		}).catch((error) => {
-			console.error("Ошибка при загрузке файла:", error);
-		});
-	}
+		})
+			.then(() => {
+				console.log("create");
+				toaster.create({
+					title: "Файл успешно загружен",
+					type: "success",
+				});
+			})
+			.then(() => {
+				fetch("http://localhost:8081/books")
+					.then((r) => r.json())
+					.then(setBooks);
 
+				fetch("http://localhost:8081/authors")
+					.then((r) => r.json())
+					.then(setAuthors);
+			});
+	}
+	function importAgain() {
+		// Создаём объект FormData и добавляем файл
+		const formData = new FormData();
+		formData.append("file", file, "output.json");
+		console.log(formData.getAll("file"));
+
+		// Отправляем файл на сервер
+		fetch("http://localhost:8081/import", {
+			method: "POST",
+			body: formData,
+		})
+			.then(() => {
+				console.log("create");
+				toaster.create({
+					title: "Файл успешно загружен",
+					type: "success",
+				});
+			})
+			.then(() => {
+				fetch("http://localhost:8081/books")
+					.then((r) => r.json())
+					.then(setBooks);
+
+				fetch("http://localhost:8081/authors")
+					.then((r) => r.json())
+					.then(setAuthors);
+			});
+	}
 	return (
 		<Box px={10} pt={5}>
 			<Flex justifyContent="space-between">
@@ -354,6 +396,7 @@ export const Home = () => {
 						<IconButton>
 							<Input type="file" id="fileinput" onChange={importF} />
 						</IconButton>
+						<Button onClick={importAgain}>Импортировать</Button>
 					</Group>
 				</Flex>
 

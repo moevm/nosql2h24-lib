@@ -1,11 +1,8 @@
-import { Box, Button, Flex, Group, IconButton, Text, Table } from "@chakra-ui/react";
-import { CiExport } from "react-icons/ci";
-import { FaDownload, FaHome } from "react-icons/fa";
-import { TbLogs } from "react-icons/tb";
+import { Box, Flex, Group, IconButton, Text, Table } from "@chakra-ui/react";
 import { DataListItem, DataListRoot } from "../ui/data-list";
 import { useState, useEffect } from "react";
-import { getCookie } from "../../utils";
 import { Link, useLocation } from "react-router-dom";
+import { FaHome } from "react-icons/fa";
 
 export const User = () => {
 	const [user, setUser] = useState<any>();
